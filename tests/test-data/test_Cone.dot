@@ -1,0 +1,7 @@
+digraph D {
+    root_96 [label="root"];
+    cone1_97 [label="cone1"];
+    cone2_98 [label="cone2"];
+    root_96 -> cone1_97;
+    root_96 -> cone2_98;
+}

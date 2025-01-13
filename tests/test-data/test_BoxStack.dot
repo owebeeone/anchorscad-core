@@ -1,0 +1,9 @@
+digraph D {
+    root_90 [label="root"];
+    box1_91 [label="box1"];
+    box2_92 [label="box2"];
+    box3_93 [label="box3"];
+    root_90 -> box1_91;
+    root_90 -> box2_92;
+    root_90 -> box3_93;
+}

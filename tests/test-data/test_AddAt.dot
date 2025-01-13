@@ -1,0 +1,33 @@
+digraph D {
+    root_1 [label="root"];
+    block_2 [label="block"];
+    corner_0_3 [label="corner_0"];
+    corner_4_4 [label="corner_4"];
+    corner_1_5 [label="corner_1"];
+    corner_5_6 [label="corner_5"];
+    corner_2_7 [label="corner_2"];
+    corner_6_8 [label="corner_6"];
+    corner_3_9 [label="corner_3"];
+    corner_7_10 [label="corner_7"];
+    face_0_11 [label="face_0"];
+    face_1_12 [label="face_1"];
+    face_2_13 [label="face_2"];
+    face_3_14 [label="face_3"];
+    face_4_15 [label="face_4"];
+    face_5_16 [label="face_5"];
+    root_1 -> block_2;
+    root_1 -> corner_0_3;
+    root_1 -> corner_4_4;
+    root_1 -> corner_1_5;
+    root_1 -> corner_5_6;
+    root_1 -> corner_2_7;
+    root_1 -> corner_6_8;
+    root_1 -> corner_3_9;
+    root_1 -> corner_7_10;
+    root_1 -> face_0_11;
+    root_1 -> face_1_12;
+    root_1 -> face_2_13;
+    root_1 -> face_3_14;
+    root_1 -> face_4_15;
+    root_1 -> face_5_16;
+}

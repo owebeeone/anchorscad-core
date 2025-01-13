@@ -1,0 +1,5 @@
+digraph D {
+    root_94 [label="root"];
+    thing1_95 [label="thing1"];
+    root_94 -> thing1_95;
+}

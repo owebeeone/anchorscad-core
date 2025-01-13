@@ -1,0 +1,9 @@
+digraph D {
+    root_907 [label="root"];
+    intersection1_908 [label="intersection1"];
+    box_909 [label="box"];
+    sphere_910 [label="sphere"];
+    root_907 -> intersection1_908;
+    intersection1_908 -> box_909;
+    intersection1_908 -> sphere_910;
+}

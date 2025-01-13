@@ -1,0 +1,23 @@
+digraph D {
+    root_17 [label="root"];
+    inner_18 [label="inner"];
+    outer_19 [label="outer"];
+    in_between_20 [label="in_between"];
+    face_text_21 [label="\('face_text',\ 'inner',\ 0\)"];
+    face_text_22 [label="\('face_text',\ 'inner',\ 1\)"];
+    face_text_23 [label="\('face_text',\ 'inner',\ 2\)"];
+    face_text_24 [label="\('face_text',\ 'inner',\ 3\)"];
+    face_text_25 [label="\('face_text',\ 'inner',\ 4\)"];
+    face_text_26 [label="\('face_text',\ 'inner',\ 5\)"];
+    here_text_27 [label="here_text"];
+    root_17 -> inner_18;
+    root_17 -> outer_19;
+    root_17 -> in_between_20;
+    root_17 -> face_text_21;
+    root_17 -> face_text_22;
+    root_17 -> face_text_23;
+    root_17 -> face_text_24;
+    root_17 -> face_text_25;
+    root_17 -> face_text_26;
+    root_17 -> here_text_27;
+}

@@ -1,0 +1,7 @@
+digraph D {
+    root_942 [label="root"];
+    default_text_943 [label="default_text"];
+    scaled_text_944 [label="scaled_text"];
+    root_942 -> default_text_943;
+    root_942 -> scaled_text_944;
+}

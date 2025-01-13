@@ -1,0 +1,9 @@
+digraph D {
+    root_86 [label="root"];
+    x_87 [label="x"];
+    stem_88 [label="stem"];
+    head_89 [label="head"];
+    root_86 -> x_87;
+    x_87 -> stem_88;
+    x_87 -> head_89;
+}

@@ -1,0 +1,35 @@
+digraph D {
+    root_890 [label="root"];
+    default_891 [label="default"];
+    coords_892 [label="coords"];
+    origin_893 [label="origin"];
+    x_arrow_894 [label="x_arrow"];
+    stem_895 [label="stem"];
+    head_896 [label="head"];
+    y_arrow_897 [label="y_arrow"];
+    stem_898 [label="stem"];
+    head_899 [label="head"];
+    z_arrow_900 [label="z_arrow"];
+    stem_901 [label="stem"];
+    head_902 [label="head"];
+    x_903 [label="x"];
+    y_904 [label="y"];
+    z_905 [label="z"];
+    label_906 [label="label"];
+    root_890 -> default_891;
+    default_891 -> coords_892;
+    coords_892 -> origin_893;
+    coords_892 -> x_arrow_894;
+    x_arrow_894 -> stem_895;
+    x_arrow_894 -> head_896;
+    coords_892 -> y_arrow_897;
+    y_arrow_897 -> stem_898;
+    y_arrow_897 -> head_899;
+    coords_892 -> z_arrow_900;
+    z_arrow_900 -> stem_901;
+    z_arrow_900 -> head_902;
+    default_891 -> x_903;
+    default_891 -> y_904;
+    default_891 -> z_905;
+    default_891 -> label_906;
+}

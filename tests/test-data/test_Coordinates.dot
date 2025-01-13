@@ -1,0 +1,25 @@
+digraph D {
+    root_99 [label="root"];
+    coordinates_100 [label="coordinates"];
+    origin_101 [label="origin"];
+    x_arrow_102 [label="x_arrow"];
+    stem_103 [label="stem"];
+    head_104 [label="head"];
+    y_arrow_105 [label="y_arrow"];
+    stem_106 [label="stem"];
+    head_107 [label="head"];
+    z_arrow_108 [label="z_arrow"];
+    stem_109 [label="stem"];
+    head_110 [label="head"];
+    root_99 -> coordinates_100;
+    coordinates_100 -> origin_101;
+    coordinates_100 -> x_arrow_102;
+    x_arrow_102 -> stem_103;
+    x_arrow_102 -> head_104;
+    coordinates_100 -> y_arrow_105;
+    y_arrow_105 -> stem_106;
+    y_arrow_105 -> head_107;
+    coordinates_100 -> z_arrow_108;
+    z_arrow_108 -> stem_109;
+    z_arrow_108 -> head_110;
+}

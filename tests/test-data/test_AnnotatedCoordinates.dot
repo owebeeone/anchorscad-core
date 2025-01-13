@@ -1,0 +1,33 @@
+digraph D {
+    root_70 [label="root"];
+    coordinates_71 [label="coordinates"];
+    coords_72 [label="coords"];
+    origin_73 [label="origin"];
+    x_arrow_74 [label="x_arrow"];
+    stem_75 [label="stem"];
+    head_76 [label="head"];
+    y_arrow_77 [label="y_arrow"];
+    stem_78 [label="stem"];
+    head_79 [label="head"];
+    z_arrow_80 [label="z_arrow"];
+    stem_81 [label="stem"];
+    head_82 [label="head"];
+    x_83 [label="x"];
+    y_84 [label="y"];
+    z_85 [label="z"];
+    root_70 -> coordinates_71;
+    coordinates_71 -> coords_72;
+    coords_72 -> origin_73;
+    coords_72 -> x_arrow_74;
+    x_arrow_74 -> stem_75;
+    x_arrow_74 -> head_76;
+    coords_72 -> y_arrow_77;
+    y_arrow_77 -> stem_78;
+    y_arrow_77 -> head_79;
+    coords_72 -> z_arrow_80;
+    z_arrow_80 -> stem_81;
+    z_arrow_80 -> head_82;
+    coordinates_71 -> x_83;
+    coordinates_71 -> y_84;
+    coordinates_71 -> z_85;
+}

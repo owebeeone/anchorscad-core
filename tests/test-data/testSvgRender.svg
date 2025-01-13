@@ -1,0 +1,289 @@
+<svg width="700" height="700" xmlns="http://www.w3.org/2000/svg">
+<style>
+.shape {
+            stroke: black;
+            stroke-width: 0.090533;
+            fill: #bfbf10;
+        }
+.construction_shape {
+            stroke: black;
+            stroke-width: 0.090533;
+            fill: None;
+        }
+.path {
+            stroke: black;
+            stroke-width: 0.090533;
+            fill: none;
+            pointer-events: stroke;
+        }
+.construction {
+            stroke: deepskyblue;
+            stroke-width: 0.090533;
+            fill: none;
+            pointer-events: stroke;
+        }
+.path.selected,
+.path.selected:hover {
+            stroke: green;
+            stroke-width: 0.39231;
+            fill: #0000;
+            pointer-events: stroke;
+        }
+.path:hover {
+            stroke: red;
+            stroke-width: 0.271599;
+            fill: #0000;
+            pointer-events: stroke;
+        }
+.construction.selected,
+.construction.selected:hover {
+            stroke: purple;
+            stroke-width: 0.271599;
+            fill: #0000;
+            pointer-events: stroke;
+        }
+.construction:hover {
+            stroke: orange;
+            stroke-width: 0.211244;
+            fill: #0000;
+            pointer-events: stroke;
+        }
+.dot {
+            fill: darkgreen;
+            r: 0.39231;
+            pointer-events: none;
+        }
+.cursor-dot {
+            fill: yellow;
+            r: 0.211244;
+            pointer-events: none;
+        }
+.control-line {
+            stroke: blue;
+            stroke-width: 0.211244;
+            stroke-dasharray: 0.603553;
+        }
+.graduation_small {
+            stroke: #0000af;
+            stroke-width: 0.060355339059327384;
+            fill: none;
+        }
+.graduation_medium {
+            stroke: #0000af;
+            stroke-width: 0.09053300858899108;
+            fill: none;
+        }
+.graduation_large {
+            stroke: #0000af;
+            stroke-width: 0.10260407640085654;
+            fill: none;
+        }
+.grid_fives {
+            stroke: #7010500f;
+            stroke-width: 0.060355339059327384;
+            }
+.grid_tens {
+            stroke: #0070102f;
+            stroke-width: 0.09053300858899108;
+            }
+.grid_axes {
+            stroke: #0000ffff;
+            stroke-width: 0.10260407640085654;
+            }
+text {
+            fill: #101010;
+            font-size: 0.060355339059327384em;
+            }
+.frame {
+            stroke: #00003f;
+            stroke-width: 0.12071067811865477;
+            fill: #f7f7f7;
+        }
+</style>
+<g transform="matrix(16.5685,0,0,-16.5685,436.835,315.685)">
+<path d="M -23.3475 16.0355 L 12.8657 16.0355 L 12.8657 -20.1777 L -23.3475 -20.1777 Z" class="frame"/>
+<path d="M 0 15.432 L 0 -19.5741" class="grid_axes"/>
+<path d="M -22.744 0 L 12.2621 0" class="grid_axes"/>
+<path d="M 0 0 L -10 10 A 14.1421 14.1421 0 0 1 3.66025 -13.6603 L 0 0 Z" class="shape"/>
+<path d="M -23 16.0355 L -23 15.8545" class="graduation_small"/>
+<path d="M -23 -20.1777 L -23 -19.9966" class="graduation_small"/>
+<path d="M -22 16.0355 L -22 15.8545" class="graduation_small"/>
+<path d="M -22 -20.1777 L -22 -19.9966" class="graduation_small"/>
+<path d="M -21 16.0355 L -21 15.8545" class="graduation_small"/>
+<path d="M -21 -20.1777 L -21 -19.9966" class="graduation_small"/>
+<path d="M -20 16.0355 L -20 15.432" class="graduation_large"/>
+<text text-anchor="end" transform="translate(-20.3018 16.3373) rotate(270) scale(1, -1)">-20</text>
+<path d="M -20 -20.1777 L -20 -19.5741" class="graduation_large"/>
+<path d="M -20 15.432 L -20 -19.5741" class="grid_tens"/>
+<path d="M -19 16.0355 L -19 15.8545" class="graduation_small"/>
+<path d="M -19 -20.1777 L -19 -19.9966" class="graduation_small"/>
+<path d="M -18 16.0355 L -18 15.8545" class="graduation_small"/>
+<path d="M -18 -20.1777 L -18 -19.9966" class="graduation_small"/>
+<path d="M -17 16.0355 L -17 15.8545" class="graduation_small"/>
+<path d="M -17 -20.1777 L -17 -19.9966" class="graduation_small"/>
+<path d="M -16 16.0355 L -16 15.8545" class="graduation_small"/>
+<path d="M -16 -20.1777 L -16 -19.9966" class="graduation_small"/>
+<path d="M -15 16.0355 L -15 15.7338" class="graduation_medium"/>
+<text text-anchor="end" transform="translate(-15.3018 16.3373) rotate(270) scale(1, -1)">-15</text>
+<path d="M -15 -20.1777 L -15 -19.8759" class="graduation_medium"/>
+<path d="M -15 15.7338 L -15 -19.8759" class="grid_fives"/>
+<path d="M -14 16.0355 L -14 15.8545" class="graduation_small"/>
+<path d="M -14 -20.1777 L -14 -19.9966" class="graduation_small"/>
+<path d="M -13 16.0355 L -13 15.8545" class="graduation_small"/>
+<path d="M -13 -20.1777 L -13 -19.9966" class="graduation_small"/>
+<path d="M -12 16.0355 L -12 15.8545" class="graduation_small"/>
+<path d="M -12 -20.1777 L -12 -19.9966" class="graduation_small"/>
+<path d="M -11 16.0355 L -11 15.8545" class="graduation_small"/>
+<path d="M -11 -20.1777 L -11 -19.9966" class="graduation_small"/>
+<path d="M -10 16.0355 L -10 15.432" class="graduation_large"/>
+<text text-anchor="end" transform="translate(-10.3018 16.3373) rotate(270) scale(1, -1)">-10</text>
+<path d="M -10 -20.1777 L -10 -19.5741" class="graduation_large"/>
+<path d="M -10 15.432 L -10 -19.5741" class="grid_tens"/>
+<path d="M -9 16.0355 L -9 15.8545" class="graduation_small"/>
+<path d="M -9 -20.1777 L -9 -19.9966" class="graduation_small"/>
+<path d="M -8 16.0355 L -8 15.8545" class="graduation_small"/>
+<path d="M -8 -20.1777 L -8 -19.9966" class="graduation_small"/>
+<path d="M -7 16.0355 L -7 15.8545" class="graduation_small"/>
+<path d="M -7 -20.1777 L -7 -19.9966" class="graduation_small"/>
+<path d="M -6 16.0355 L -6 15.8545" class="graduation_small"/>
+<path d="M -6 -20.1777 L -6 -19.9966" class="graduation_small"/>
+<path d="M -5 16.0355 L -5 15.7338" class="graduation_medium"/>
+<text text-anchor="end" transform="translate(-5.30178 16.3373) rotate(270) scale(1, -1)">-5</text>
+<path d="M -5 -20.1777 L -5 -19.8759" class="graduation_medium"/>
+<path d="M -5 15.7338 L -5 -19.8759" class="grid_fives"/>
+<path d="M -4 16.0355 L -4 15.8545" class="graduation_small"/>
+<path d="M -4 -20.1777 L -4 -19.9966" class="graduation_small"/>
+<path d="M -3 16.0355 L -3 15.8545" class="graduation_small"/>
+<path d="M -3 -20.1777 L -3 -19.9966" class="graduation_small"/>
+<path d="M -2 16.0355 L -2 15.8545" class="graduation_small"/>
+<path d="M -2 -20.1777 L -2 -19.9966" class="graduation_small"/>
+<path d="M -1 16.0355 L -1 15.8545" class="graduation_small"/>
+<path d="M -1 -20.1777 L -1 -19.9966" class="graduation_small"/>
+<path d="M 0 16.0355 L 0 15.432" class="graduation_large"/>
+<text text-anchor="end" transform="translate(-0.301777 16.3373) rotate(270) scale(1, -1)">0</text>
+<path d="M 0 -20.1777 L 0 -19.5741" class="graduation_large"/>
+<path d="M 0 15.432 L 0 -19.5741" class="grid_tens"/>
+<path d="M 1 16.0355 L 1 15.8545" class="graduation_small"/>
+<path d="M 1 -20.1777 L 1 -19.9966" class="graduation_small"/>
+<path d="M 2 16.0355 L 2 15.8545" class="graduation_small"/>
+<path d="M 2 -20.1777 L 2 -19.9966" class="graduation_small"/>
+<path d="M 3 16.0355 L 3 15.8545" class="graduation_small"/>
+<path d="M 3 -20.1777 L 3 -19.9966" class="graduation_small"/>
+<path d="M 4 16.0355 L 4 15.8545" class="graduation_small"/>
+<path d="M 4 -20.1777 L 4 -19.9966" class="graduation_small"/>
+<path d="M 5 16.0355 L 5 15.7338" class="graduation_medium"/>
+<text text-anchor="end" transform="translate(4.69822 16.3373) rotate(270) scale(1, -1)">5</text>
+<path d="M 5 -20.1777 L 5 -19.8759" class="graduation_medium"/>
+<path d="M 5 15.7338 L 5 -19.8759" class="grid_fives"/>
+<path d="M 6 16.0355 L 6 15.8545" class="graduation_small"/>
+<path d="M 6 -20.1777 L 6 -19.9966" class="graduation_small"/>
+<path d="M 7 16.0355 L 7 15.8545" class="graduation_small"/>
+<path d="M 7 -20.1777 L 7 -19.9966" class="graduation_small"/>
+<path d="M 8 16.0355 L 8 15.8545" class="graduation_small"/>
+<path d="M 8 -20.1777 L 8 -19.9966" class="graduation_small"/>
+<path d="M 9 16.0355 L 9 15.8545" class="graduation_small"/>
+<path d="M 9 -20.1777 L 9 -19.9966" class="graduation_small"/>
+<path d="M 10 16.0355 L 10 15.432" class="graduation_large"/>
+<text text-anchor="end" transform="translate(9.69822 16.3373) rotate(270) scale(1, -1)">10</text>
+<path d="M 10 -20.1777 L 10 -19.5741" class="graduation_large"/>
+<path d="M 10 15.432 L 10 -19.5741" class="grid_tens"/>
+<path d="M 11 16.0355 L 11 15.8545" class="graduation_small"/>
+<path d="M 11 -20.1777 L 11 -19.9966" class="graduation_small"/>
+<path d="M 12 16.0355 L 12 15.8545" class="graduation_small"/>
+<path d="M 12 -20.1777 L 12 -19.9966" class="graduation_small"/>
+<path d="M -23.3475 -20 L -22.744 -20" class="graduation_large"/>
+<text text-anchor="end" transform="translate(-23.6493 -20.3018) rotate(0) scale(1, -1)">-20</text>
+<path d="M 12.8657 -20 L 12.2621 -20" class="graduation_large"/>
+<path d="M -22.744 -20 L 12.2621 -20" class="grid_tens"/>
+<path d="M -23.3475 -19 L -23.1665 -19" class="graduation_small"/>
+<path d="M 12.8657 -19 L 12.6846 -19" class="graduation_small"/>
+<path d="M -23.3475 -18 L -23.1665 -18" class="graduation_small"/>
+<path d="M 12.8657 -18 L 12.6846 -18" class="graduation_small"/>
+<path d="M -23.3475 -17 L -23.1665 -17" class="graduation_small"/>
+<path d="M 12.8657 -17 L 12.6846 -17" class="graduation_small"/>
+<path d="M -23.3475 -16 L -23.1665 -16" class="graduation_small"/>
+<path d="M 12.8657 -16 L 12.6846 -16" class="graduation_small"/>
+<path d="M -23.3475 -15 L -23.0458 -15" class="graduation_medium"/>
+<text text-anchor="end" transform="translate(-23.6493 -15.3018) rotate(0) scale(1, -1)">-15</text>
+<path d="M 12.8657 -15 L 12.5639 -15" class="graduation_medium"/>
+<path d="M -23.0458 -15 L 12.5639 -15" class="grid_fives"/>
+<path d="M -23.3475 -14 L -23.1665 -14" class="graduation_small"/>
+<path d="M 12.8657 -14 L 12.6846 -14" class="graduation_small"/>
+<path d="M -23.3475 -13 L -23.1665 -13" class="graduation_small"/>
+<path d="M 12.8657 -13 L 12.6846 -13" class="graduation_small"/>
+<path d="M -23.3475 -12 L -23.1665 -12" class="graduation_small"/>
+<path d="M 12.8657 -12 L 12.6846 -12" class="graduation_small"/>
+<path d="M -23.3475 -11 L -23.1665 -11" class="graduation_small"/>
+<path d="M 12.8657 -11 L 12.6846 -11" class="graduation_small"/>
+<path d="M -23.3475 -10 L -22.744 -10" class="graduation_large"/>
+<text text-anchor="end" transform="translate(-23.6493 -10.3018) rotate(0) scale(1, -1)">-10</text>
+<path d="M 12.8657 -10 L 12.2621 -10" class="graduation_large"/>
+<path d="M -22.744 -10 L 12.2621 -10" class="grid_tens"/>
+<path d="M -23.3475 -9 L -23.1665 -9" class="graduation_small"/>
+<path d="M 12.8657 -9 L 12.6846 -9" class="graduation_small"/>
+<path d="M -23.3475 -8 L -23.1665 -8" class="graduation_small"/>
+<path d="M 12.8657 -8 L 12.6846 -8" class="graduation_small"/>
+<path d="M -23.3475 -7 L -23.1665 -7" class="graduation_small"/>
+<path d="M 12.8657 -7 L 12.6846 -7" class="graduation_small"/>
+<path d="M -23.3475 -6 L -23.1665 -6" class="graduation_small"/>
+<path d="M 12.8657 -6 L 12.6846 -6" class="graduation_small"/>
+<path d="M -23.3475 -5 L -23.0458 -5" class="graduation_medium"/>
+<text text-anchor="end" transform="translate(-23.6493 -5.30178) rotate(0) scale(1, -1)">-5</text>
+<path d="M 12.8657 -5 L 12.5639 -5" class="graduation_medium"/>
+<path d="M -23.0458 -5 L 12.5639 -5" class="grid_fives"/>
+<path d="M -23.3475 -4 L -23.1665 -4" class="graduation_small"/>
+<path d="M 12.8657 -4 L 12.6846 -4" class="graduation_small"/>
+<path d="M -23.3475 -3 L -23.1665 -3" class="graduation_small"/>
+<path d="M 12.8657 -3 L 12.6846 -3" class="graduation_small"/>
+<path d="M -23.3475 -2 L -23.1665 -2" class="graduation_small"/>
+<path d="M 12.8657 -2 L 12.6846 -2" class="graduation_small"/>
+<path d="M -23.3475 -1 L -23.1665 -1" class="graduation_small"/>
+<path d="M 12.8657 -1 L 12.6846 -1" class="graduation_small"/>
+<path d="M -23.3475 0 L -22.744 0" class="graduation_large"/>
+<text text-anchor="end" transform="translate(-23.6493 -0.301777) rotate(0) scale(1, -1)">0</text>
+<path d="M 12.8657 0 L 12.2621 0" class="graduation_large"/>
+<path d="M -22.744 0 L 12.2621 0" class="grid_tens"/>
+<path d="M -23.3475 1 L -23.1665 1" class="graduation_small"/>
+<path d="M 12.8657 1 L 12.6846 1" class="graduation_small"/>
+<path d="M -23.3475 2 L -23.1665 2" class="graduation_small"/>
+<path d="M 12.8657 2 L 12.6846 2" class="graduation_small"/>
+<path d="M -23.3475 3 L -23.1665 3" class="graduation_small"/>
+<path d="M 12.8657 3 L 12.6846 3" class="graduation_small"/>
+<path d="M -23.3475 4 L -23.1665 4" class="graduation_small"/>
+<path d="M 12.8657 4 L 12.6846 4" class="graduation_small"/>
+<path d="M -23.3475 5 L -23.0458 5" class="graduation_medium"/>
+<text text-anchor="end" transform="translate(-23.6493 4.69822) rotate(0) scale(1, -1)">5</text>
+<path d="M 12.8657 5 L 12.5639 5" class="graduation_medium"/>
+<path d="M -23.0458 5 L 12.5639 5" class="grid_fives"/>
+<path d="M -23.3475 6 L -23.1665 6" class="graduation_small"/>
+<path d="M 12.8657 6 L 12.6846 6" class="graduation_small"/>
+<path d="M -23.3475 7 L -23.1665 7" class="graduation_small"/>
+<path d="M 12.8657 7 L 12.6846 7" class="graduation_small"/>
+<path d="M -23.3475 8 L -23.1665 8" class="graduation_small"/>
+<path d="M 12.8657 8 L 12.6846 8" class="graduation_small"/>
+<path d="M -23.3475 9 L -23.1665 9" class="graduation_small"/>
+<path d="M 12.8657 9 L 12.6846 9" class="graduation_small"/>
+<path d="M -23.3475 10 L -22.744 10" class="graduation_large"/>
+<text text-anchor="end" transform="translate(-23.6493 9.69822) rotate(0) scale(1, -1)">10</text>
+<path d="M 12.8657 10 L 12.2621 10" class="graduation_large"/>
+<path d="M -22.744 10 L 12.2621 10" class="grid_tens"/>
+<path d="M -23.3475 11 L -23.1665 11" class="graduation_small"/>
+<path d="M 12.8657 11 L 12.6846 11" class="graduation_small"/>
+<path d="M -23.3475 12 L -23.1665 12" class="graduation_small"/>
+<path d="M 12.8657 12 L 12.6846 12" class="graduation_small"/>
+<path d="M -23.3475 13 L -23.1665 13" class="graduation_small"/>
+<path d="M 12.8657 13 L 12.6846 13" class="graduation_small"/>
+<path d="M -23.3475 14 L -23.1665 14" class="graduation_small"/>
+<path d="M 12.8657 14 L 12.6846 14" class="graduation_small"/>
+<path d="M -23.3475 15 L -23.0458 15" class="graduation_medium"/>
+<text text-anchor="end" transform="translate(-23.6493 14.6982) rotate(0) scale(1, -1)">15</text>
+<path d="M 12.8657 15 L 12.5639 15" class="graduation_medium"/>
+<path d="M -23.0458 15 L 12.5639 15" class="grid_fives"/>
+<path d="M -23.3475 16 L -23.1665 16" class="graduation_small"/>
+<path d="M 12.8657 16 L 12.6846 16" class="graduation_small"/>
+<path d="M 0 0" id="seg_id8" class="segment path"/>
+<path d="M 0 0 L -10 10" id="seg_id9" class="segment path"/>
+<path d="M -10 10 A 14.1421 14.1421 0 0 1 3.66025 -13.6603" id="seg_id10" class="segment path"/>
+<path d="M 3.66025 -13.6603 L 0 0" id="seg_id11" class="segment path"/>
+</g>
+</svg>
