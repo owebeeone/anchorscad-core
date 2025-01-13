@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "anchorscad-core"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
   { name="Gianni Mariani", email="gianni@mariani.ws" },
 ]
@@ -52,4 +52,4 @@ dependencies = [
   "pytest-cov>=4.0.0",
 ] 
 [tool.hatch.build.targets.wheel]
-packages = ["src/anchorscad_lib"]
+packages = ["src/anchorscad", "src/anchorscad_models"]
