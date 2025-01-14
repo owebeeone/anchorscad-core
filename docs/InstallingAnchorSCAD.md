@@ -21,7 +21,7 @@ If you want to run it from source, you will to clone the [AnchorSCAD-Core Github
 
 This software is provided under the terms of the LGPL V2.1 license. See the [License](#_f2cn9t1bbfvs) section in this document for more information.
 
-# Requirements if Sunning from Source
+# Requirements if Running from Source
 All the required PIP packages are provided in the [requirements.txt](https://github.com/owebeeone/anchorscad/blob/master/src/anchorscad/requirements.txt) in the [AnchorSCAD Github](https://github.com/owebeeone/anchorscad.git) repository.
 
 [Git](https://git-scm.com/) is also required for downloading the [AnchorSCAD](https://github.com/owebeeone/anchorscad.git) repositories and also for contributing any models to [AnchorSCAD](https://github.com/owebeeone/anchorscad.git)‘s anchorcad_models package or bug fixes or improvements.
