@@ -19,6 +19,7 @@ from dataclasses import dataclass
 import anchorscad.renderer as renderer
 import anchorscad.graph_model as gm
 import anchorscad.core as core
+import re
 
 
 @dataclass
@@ -34,7 +35,7 @@ class ExtrudeTest(TestCase):
         self.points = []
         # Golden files are stored in 'test-data' directory next to the test file
         self.golden_dir = os.path.join(os.path.dirname(__file__), 'test-data')
-        self.update_golden_files = UPDATE_GOLDEN_FILES
+        self.update_golden_files = UPDATE_GOLDEN_FILES 
         self.verbose = False
         
     def log_verbose(self, *args, **kwargs):
@@ -49,9 +50,16 @@ class ExtrudeTest(TestCase):
         scad_output = str(result.rendered_shape)
         
         self.compare_scad_with_golden(filename, scad_output)
-        
+    
+    def filter_test_method_difference(self, output: str):
+        output = output.replace('src/anchorscad/', 'anchorscad/')
+        output = output.replace('tests/', '')
+        # output = re.sub(r',\s*\d+\s*\n', '\n', output)
+        # output = re.sub(r'\s+', ' ', output)
+        return output
+    
     def compare_scad_with_golden(self, filename, scad_output: str):
-        
+        scad_output = self.filter_test_method_difference(scad_output)
         if self.update_golden_files:
             with open(os.path.join(self.golden_dir, filename), 'w') as f:
                 f.write(scad_output)
@@ -59,10 +67,11 @@ class ExtrudeTest(TestCase):
         
         # Load them into a list of lines
         with open(os.path.join(self.golden_dir, filename), 'r') as f:
-            golden_lines = f.readlines()[:-1]
+            golden_lines = f.read()
         
         # Convert the scad output to a list of lines, explicitly keeping newlines
         actual_lines = scad_output.splitlines(keepends=True) # remove the last empty line
+        golden_lines = golden_lines.splitlines(keepends=True)
             
         difference : compare_generated.FileDifference = compare_generated.compare_scad_lines(
             golden_lines, actual_lines)   
@@ -70,6 +79,8 @@ class ExtrudeTest(TestCase):
             self.fail(f'Difference found in {filename}: {difference}')    
             
     def compare_with_golden(self, filename, actual_output):
+        actual_output = self.filter_test_method_difference(actual_output)
+        
         golden_path = os.path.join(self.golden_dir, filename)
         if self.update_golden_files:
             # Update golden files if environment variable is set
@@ -904,8 +915,9 @@ class ExtrudeTest(TestCase):
 
 
     def html_compare(self, filename: str, htmlRenderer: sr.HtmlRenderer):
-        svg_str = htmlRenderer.create_html()
-        self.compare_with_golden(filename, svg_str)
+        html_str = htmlRenderer.create_html()
+        # Note: Moving path normalization to compare_with_golden
+        self.compare_with_golden(filename, html_str)
         
     def testSvgRender3(self):
         import anchorscad_models.tools.funnel.FilterFunnel as funnel

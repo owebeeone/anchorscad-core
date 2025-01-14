@@ -2607,6 +2607,19 @@ def nameof(name, example_version):
     return name
 
 
+@datatree
+class RenderStats:
+    """Stats of rendering examples."""
+    shape_count: int = dtfield(0, "Number of Shape classes rendered.")
+    example_count: int = dtfield(0, "Number of examples (shape may have >1 examples) found.")
+    parts_count: int = dtfield(0, "Number of parts (each example may have >1 parts).")
+    error_count: int = dtfield(0, "Number of errors encountered.")
+
+    def has_counts(self):
+        """Returns True if any of the counts are non-zero."""
+        return self.shape_count or self.example_count or self.error_count or self.parts_count
+
+
 def render_examples(
     module,
     render_options,
@@ -2618,27 +2631,24 @@ def render_examples(
     start_example=None,
     end_example=None,
     parts_consumer=None,
-):
+) -> RenderStats:
     """Scans a module for all Anchorscad shape classes and renders examples."""
     classes = find_all_shape_classes(module)
     # Lazy import renderer since renderer depends on this.
     import anchorscad.renderer as renderer
 
-    shape_count = 0
-    example_count = 0
-    error_count = 0
-    parts_count = 0
+    stats: RenderStats = RenderStats()
     for clz in classes:
         if render_options.match_name(clz.__name__):
-            shape_count += 1
+            stats.shape_count += 1
             for e in clz.examples():
-                example_count += 1
+                stats.example_count += 1
                 if start_example:
                     start_example(clz, e)
                 try:
                     maker, shape = clz.example(e)
                     name = nameof(e, shape.get_example_version())
-                    result = renderer.render(
+                    result : renderer.RenderResult = renderer.render(
                         maker, initial_frame=None, initial_attrs=render_options.render_attributes
                     )
 
@@ -2649,18 +2659,18 @@ def render_examples(
                     if shape_consumer:
                         shape_consumer(maker, shape, clz, name, e)
 
-                    parts_count += len(result.parts)
+                    stats.parts_count += len(result.parts)
                     if parts_consumer:
                         parts_consumer(result.parts, clz, name, e)
                 except BaseException as ex:
-                    error_count += 1
+                    stats.error_count += 1
                     traceback.print_exception(*sys.exc_info(), limit=20)
                     sys.stderr.write(f"Error while rendering {clz.__name__} example:{e}:\n{ex}\n")
                     traceback.print_exception(*sys.exc_info())
                 finally:
                     if end_example:
                         end_example(clz, e)
-    return shape_count, example_count, error_count, parts_count
+    return stats
 
 
 @datatree(provide_override_field=False)
@@ -2839,7 +2849,7 @@ class ExampleCommandLineRenderer:
     """
 
     def __init__(self, args, do_exit_on_completion=None):
-        self.counts = (0,) * 3
+        self.stats : RenderStats  = RenderStats()
         self.args = args
         argq = ArgumentParserWithReconstruct(
             formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -3043,7 +3053,7 @@ class ExampleCommandLineRenderer:
             class_name=self.argp.class_name,
         )
         self.set_mkdir = set()
-        self.counts = (0, 0)
+        self.render_result = RenderStats()
         self.status = 1
 
     def reconstruct(self, **kwds):
@@ -3167,7 +3177,7 @@ class ExampleCommandLineRenderer:
             )
 
     def invoke_render_examples(self):
-        self.counts = render_examples(
+        self.stats = render_examples(
             self.module,
             self.options,
             self.file_writer,
@@ -3188,17 +3198,19 @@ class ExampleCommandLineRenderer:
         else:
             self.invoke_render_examples()
 
-        sys.stderr.write(
-            f"shapes: {self.counts[0]}\n"
-            f"examples: {self.counts[1]}\n"
-            f"errors: {self.counts[2]}\n"
-            f"parts: {self.counts[3]}\n"
-        )
+        if self.stats.has_counts():
+            print(
+                f"shapes: {self.stats.shape_count}\n"
+                f"examples: {self.stats.example_count}\n"
+                f"parts: {self.stats.parts_count}\n"
+                f"errors: {self.stats.error_count}\n",
+                file=sys.stderr,
+            )
 
     def fix_status(self):
         if self.status:
             return
-        if self.counts[2]:
+        if self.render_result.error_count:
             self.status = 1
 
     def run(self):
