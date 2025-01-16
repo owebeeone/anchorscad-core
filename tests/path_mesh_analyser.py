@@ -329,8 +329,8 @@ class TestPathMesh(unittest.TestCase):
         #self.assertEqual(closest_points_monotonic(points2, points1), expected_result)
         
     def test_tesselate_with_noisy_path(self):
-        s = 15
-        n = 20
+        s = 150
+        n = 25
         dn = 30
         sep = 6.4
         path = self.maker_path_noise(22 - sep, 22, n, s + 10, s + 11, np.pi / 4.5)

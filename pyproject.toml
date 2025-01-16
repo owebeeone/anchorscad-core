@@ -10,7 +10,7 @@ version = "0.1.2"
 authors = [
     { name = "Gianni Mariani", email = "gianni@mariani.ws" },
 ]
-description = "Linear algebra API for AnchorSCAD. Includes GMatrix, GVector, translate, rotate, angle and more."
+description = "A Python 3D modelling API for generating OpenSCAD source code. This library simplifies the creating of 3D models. This contains only the core API and some generic basic models."
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [

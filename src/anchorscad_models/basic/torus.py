@@ -60,7 +60,7 @@ class Torus(ad.CompositeShape):
     section_sweep_angle: float=360
     metadata_fn: int=64
     metadata_node: ad.Node=ad.Node(
-        ad.ModelAttributes, prefix='metadata_', expose_all=True)
+        ad.ModelAttributes, {'fn': 'metadata_fn'})
     metadata: ad.ModelAttributes=ad.dtfield(self_default=lambda s: s.metadata_node())
     path_node: ad.Node=ad.dtfield(ad.Node(torus_path))
     path: ad.Path=ad.dtfield(self_default=lambda s: s.path_node(), init=False)
