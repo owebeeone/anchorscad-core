@@ -33,7 +33,7 @@ class PlotBase:
         global IS_CLOSED
         IS_CLOSED = True
         
-    def init_plot(self):
+    def init_plot(self) -> tuple[plt.Figure, plt.Axes]:
         # Plot the results.
         fig, ax = plt.subplots()
         

@@ -121,6 +121,7 @@ class CubicSpline():
         self_default=lambda s: len(s.p[0]),
         init=True, 
         doc='The number of dimensions in the spline.')
+    coefs: np.ndarray=dtfield(init=False)
     
     COEFFICIENTS=np.array([
         [-1.,  3, -3,  1 ],
@@ -263,6 +264,7 @@ class QuadraticSpline():
         self_default=lambda s: len(s.p[0]),
         init=True, 
         doc='The number of dimensions in the spline.')
+    coefs: np.ndarray=dtfield(init=False)
     
     COEFFICIENTS=np.array([
         [  1., -2,  1 ],

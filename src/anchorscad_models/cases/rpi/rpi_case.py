@@ -30,7 +30,6 @@ MODEL_V0=1632924118
 
 DELTA=ot.DELTA
 
-
 @shape
 @datatree(chain_post_init=True)
 class RaspberryPiCase(CompositeShape):
@@ -49,8 +48,8 @@ class RaspberryPiCase(CompositeShape):
     inner_bevel_radius: float=dtfield(self_default=lambda s:
                 s.outline_model.bevel_radius
                     + (-s.inner_offset[0] - s.inner_offset[1]) / 2)
-    outer_bevel_radius: float =dtfield(self_default=lambda s: s.inner_bevel_radius + s.wall_thickness)
-    shell_shape_node: Node=dtfield(
+    outer_bevel_radius: float=dtfield(self_default=lambda s: s.inner_bevel_radius + s.wall_thickness)
+    shell_shape_node: Node[bbox.BoxShell]=dtfield(
         ShapeNode(bbox.BoxShell, 
             {'size': 'outer_size', 
              'bevel_radius': 'outer_bevel_radius', 

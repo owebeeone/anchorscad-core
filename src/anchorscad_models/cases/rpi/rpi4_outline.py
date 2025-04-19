@@ -7,6 +7,7 @@ Created on 16 Nov 2021
 from anchorscad import args, shape, tranX, translate, datatree, \
     surface_args, anchorscad_main
 
+from anchorscad.core import ModuleDefault
 import anchorscad_models.cases.outline_tools as ot 
 
 DELTA=ot.DELTA
@@ -53,6 +54,7 @@ class RaspberryPi4Outline(ot.BaseOutline):
 
     EXAMPLE_SHAPE_ARGS=args(fn=32)
 
+MAIN_DEFAULT=ModuleDefault(all=True)
 
 if __name__ == "__main__":
     anchorscad_main(False)

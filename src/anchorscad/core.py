@@ -25,7 +25,7 @@ from anchorscad_lib.utils.colours import Colour
 from anchorscad.svg_renderer import HtmlRenderer
 import numpy as np
 import pythonopenscad as posc
-from typing import Any, Hashable, Dict, List, Tuple, Union
+from typing import Any, Generic, Hashable, Dict, List, Tuple, TypeVar, Union, cast
 import builtins
 
 
@@ -76,8 +76,8 @@ class IllegalStateException(CoreEception):
 class MustImplementBuild(CoreEception):
     """Must implement build() function returning a Maker."""
 
-
-class ShapeNode(Node):
+_T = TypeVar("_T")  # Generic type variable for Node[T] fields.
+class ShapeNode(Node[_T]):
     """A datatree Node that by default preserves the names of the
     standard metadata variables (fn, fs and fa) and exposes them if available."""
 
@@ -98,6 +98,7 @@ class ShapeNode(Node):
         )
 
         super().__init__(*args, expose_if_avail=expose_if_avail, preserve=preserve, **kwds)
+
 
 
 def args(*args, **kwds) -> Tuple[List[Any], Dict[str, Any]]:
@@ -746,7 +747,7 @@ class NamedShape(NamedShapeBase):
         anchor=None,
         descale=None,
         **kwds,
-    ) -> l.GMatrix:
+    ) -> 'Maker':
         """Creates a shape containing the nominated shape at the reference frame given.
         *args, **kwds: Parameters for the shape given. If none is provided then IDENTITY is used.
         pre: The pre multiplied transform.
@@ -780,7 +781,7 @@ class NamedShape(NamedShapeBase):
 
         return self.projection(reference_frame)
 
-    def projection(self, reference_frame: l.GMatrix):
+    def projection(self, reference_frame: l.GMatrix) -> 'Maker':
         return Maker(
             self.shape_type,
             ShapeFrame(self.name, self.shape, reference_frame),
@@ -2631,6 +2632,7 @@ def render_examples(
     start_example=None,
     end_example=None,
     parts_consumer=None,
+    mesh_consumer=None
 ) -> RenderStats:
     """Scans a module for all Anchorscad shape classes and renders examples."""
     classes = find_all_shape_classes(module)
@@ -2662,6 +2664,10 @@ def render_examples(
                     stats.parts_count += len(result.parts)
                     if parts_consumer:
                         parts_consumer(result.parts, clz, name, e)
+                        
+                    if mesh_consumer:
+                        mesh_consumer(result, clz, name, e)
+                        
                 except BaseException as ex:
                     stats.error_count += 1
                     traceback.print_exception(*sys.exc_info(), limit=20)
@@ -2710,6 +2716,7 @@ class ModuleDefault:
         None, "Produces an html file containg datatree injected field mappings."
     )
     write_part_files: bool = dtfield(None, "Writes OpenSCAD models for parts to files.")
+    write_stl_mesh_files: bool = dtfield(None, "Writes stl mesh files using the manifold3d library.")
     all: int = dtfield(
         0,
         "If set to 1, set all options to true. "
@@ -2829,6 +2836,24 @@ class ArgumentParserWithReconstruct(argparse.ArgumentParser):
         return argparse.ArgumentParser.add_argument(self, *args, **kwds)
 
 
+def add_bool_arg(parser, name, help_text, default=False, dest: str | None=None):
+    if not dest:
+        dest = name
+    parser.add_argument(
+        f"--{name}",
+        action="store_true",
+        dest=dest,
+        help=help_text
+    )
+    
+    parser.add_argument(
+        f"--no-{name}",
+        action="store_false",
+        dest=dest,
+        help=f"Disable: {help_text}"
+    )
+    parser.set_defaults(**{dest: default})
+
 class ExampleCommandLineRenderer:
     """Command line parser and runner for invoking the renderer on examples."""
 
@@ -2879,50 +2904,37 @@ class ExampleCommandLineRenderer:
         )
         self.argq.set_defaults(write_files=None)
 
-        self.argq.add_argument(
-            "--no-write-parts",
-            dest="write_part_files",
-            action="store_false",
-            help="Perform a test run. It will not make changes to file system.",
+        add_bool_arg(
+            self.argq,
+            "write-parts",
+            "Perform a test run. It will not make changes to file system.",
+            None,
+            dest="write_part_files"
         )
-
-        self.argq.add_argument(
-            "--write-parts",
-            dest="write_part_files",
-            action="store_true",
-            help="Writes models for sub-parts to files.",
+        
+        add_bool_arg(
+            self.argq,
+            "graph_write",
+            "Produces a graph of shape_names in .dot GraphViz format.",
+            None,
+            dest="write_graph_files"
         )
-        self.argq.set_defaults(write_part_files=None)
-
-        self.argq.add_argument(
-            "--no-graph_write",
-            dest="write_graph_files",
-            action="store_false",
-            help="Produces a graph of shape_names in .dot GraphViz format.",
+        
+        add_bool_arg(
+            self.argq,
+            "svg_write",
+            "Produces a graph of shape_names in .dot and .svg formats.",
+            None,
+            dest="write_graph_svg_files"
         )
-
-        self.argq.add_argument(
-            "--graph_write",
-            dest="write_graph_files",
-            action="store_true",
-            help="Produces a graph of shape_names in .dot GraphViz format.",
+        
+        add_bool_arg(
+            self.argq,
+            "stl_mesh_write",
+            "Produces stl files for the generated models.",
+            None,
+            dest="write_stl_mesh_files"
         )
-        self.argq.set_defaults(write_graph_files=None)
-
-        self.argq.add_argument(
-            "--no-svg_write",
-            dest="write_graph_svg_files",
-            action="store_false",
-            help="Produces a graph of shape_names in .dot and .svg formats.",
-        )
-
-        self.argq.add_argument(
-            "--svg_write",
-            dest="write_graph_svg_files",
-            action="store_true",
-            help="Produces a graph of shape_names in .dot and .svg formats.",
-        )
-        self.argq.set_defaults(write_graph_svg_files=None)
 
         self.argq.add_argument(
             "--out_file_name",
@@ -2938,6 +2950,15 @@ class ExampleCommandLineRenderer:
                 "examples_out", "anchorcad_{class_name}_{example}_{part}_example.scad"
             ),
             help="The OpenSCAD formatted output filename for multi part models.",
+        )
+        
+        self.argq.add_argument(
+            "--stl_mesh_out_file_name",
+            type=str,
+            default=os.path.join(
+                "examples_out", "anchorcad_{class_name}_{example}{maybe_part}_example_mesh.stl"
+            ),
+            help="The mesh STL (manifold3d) output filename.",
         )
 
         self.argq.add_argument(
@@ -3086,6 +3107,34 @@ class ExampleCommandLineRenderer:
                 sys.stderr.write(f'directory "{path.parent}" does not exist. Will be created.\n')
             strv = obj.dumps()
             sys.stdout.write(f"Shape: {clz.__name__} {example_name} {len(strv)}\n")
+            
+    def mesh_writer(self, result_obj: Any, clz, example_name, base_example_name):
+        from anchorscad.renderer import RenderResult
+        
+        if self.argp.write_stl_mesh_files:
+            result: RenderResult = cast(RenderResult, result_obj)
+            result.build_mesh()
+            
+            # Write the default model - contains all the parts.
+            fname = self.argp.stl_mesh_out_file_name.format(
+                class_name=clz.__name__, 
+                example=example_name,
+                maybe_part="")
+            
+            result.rendered_shape_mesh.write_solid_stl(fname)
+            
+            for name, mesh_ctxt in result.parts_mesh.items():
+                part_name_sanitized = "part-" + sanitize_name(name)
+                fname = self.argp.stl_mesh_out_file_name.format(
+                    class_name=clz.__name__, 
+                    example=example_name,
+                    maybe_part=f"_{part_name_sanitized}")
+                
+                mesh_ctxt.write_solid_stl(fname)
+        else:
+            # Not much we can do, we don't want to make the mesh only to drop it.
+            pass
+        
 
     def parts_writer(self, parts: Dict[str, Any], clz, example_name, base_example_name):
         if self.argp.write_part_files:
@@ -3185,6 +3234,7 @@ class ExampleCommandLineRenderer:
             self.path_file_writer,
             self.injected_file_writer,
             parts_consumer=self.parts_writer,
+            mesh_consumer=self.mesh_writer
         )
 
     def list_shapes(self):

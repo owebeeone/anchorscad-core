@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "anchorscad-core"
-version = "0.1.3"
+version = "0.2.0"
 authors = [
     { name = "Gianni Mariani", email = "gianni@mariani.ws" },
 ]
@@ -22,9 +22,9 @@ dependencies = [
     "anchorscad-test-tools>=0.1.0",
     "anchorscad-utils>=0.1.1",
     "anchorscad-linear>=0.1.0",
-    "datatrees>=0.1.7",
+    "datatrees>=0.2.1",
     "xdatatrees>=0.1.0",
-    "pythonopenscad>=1.1.0",
+    "pythonopenscad>=2.0.2",
     "frozendict",
     "manifold3d>=3.0.1",
     "dataclasses_json",

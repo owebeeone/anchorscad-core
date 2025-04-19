@@ -20,7 +20,7 @@ class ShapeName(ad.CompositeShape):
     size: tuple=ad.dtfield(
         doc='The (x,y,z) size of ShapeName',
         self_default=lambda s: (s.x, s.y, s.z))
-    box_node: ad.Node=ad.dtfield(ad.ShapeNode(ad.Box, 'size'))
+    box_node: ad.ShapeNode[ad.Box]
     
     EXAMPLE_SHAPE_ARGS=ad.args(x=40, y=40, z=40)
     EXAMPLE_ANCHORS=(

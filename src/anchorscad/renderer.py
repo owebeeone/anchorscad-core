@@ -13,6 +13,7 @@ from dataclasses_json import dataclass_json, config
 from anchorscad import core, graph_model
 import anchorscad_lib.linear as l
 import pythonopenscad as posc
+from pythonopenscad.m3dapi import M3dRenderer, RenderContext
 from typing import Any, Hashable, Dict, List, Tuple, Set, Optional, Union
 from functools import total_ordering
 
@@ -876,11 +877,12 @@ class Renderer():
             self.graph, 
             self.paths, 
             self.material_stats,
-            resolver.part_models
+            resolver.part_models,
+            self.model
             )
 
 
-@dataclass(frozen=True)
+@dataclass
 class RenderResult():
     '''A result of rendering.'''
     shape: core.Shape  # The AnchorScad Shape that was rendered.
@@ -889,7 +891,23 @@ class RenderResult():
     paths: dict  # A dictionary of Path to list of anchors in the graph.
     material_stats: MaterialStats  # Mapped material stats.
     parts: Dict[str, Any] # The individual parts of the shape.
+    model: Any # PythonOpenScad module.
+    rendered_shape_mesh: RenderContext = None
+    parts_mesh: dict[str, RenderContext] = field(default_factory=dict)
     
+    def build_mesh(self, mesh_renderer: M3dRenderer=None):
+        if self.rendered_shape_mesh is not None:
+            # Assume we've done this already.
+            return
+        
+        if mesh_renderer is None:
+            mesh_renderer = M3dRenderer()
+            
+        self.rendered_shape_mesh = self.rendered_shape.renderObj(mesh_renderer)
+        
+        for name, obj in self.parts.items():
+            self.parts_mesh[name] = obj.renderObj(mesh_renderer)
+
     
 def render(shape, 
            initial_frame: l.GMatrix=None, 
