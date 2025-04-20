@@ -24,7 +24,7 @@ dependencies = [
     "anchorscad-linear>=0.1.0",
     "datatrees>=0.2.1",
     "xdatatrees>=0.1.0",
-    "pythonopenscad>=2.0.2",
+    "pythonopenscad>=2.0.3",
     "frozendict",
     "manifold3d>=3.0.1",
     "dataclasses_json",

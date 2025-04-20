@@ -233,6 +233,7 @@ class PartMarterialResolver:
                         else f'non_physical{"_" + suffix if suffix else ""}'
         o = self.model.Module(self.unique_identifier(part_material, suffix=suffix))(*objs)
         o.setMetadataName(part_material.description())
+        o.setDescriptor(part_material)
         return o
         
     def _resolve_part_materials(self) -> \
@@ -326,9 +327,11 @@ class PartMarterialResolver:
         for k, v in objects.items():
             if len(v) > 1:
                 id = self.unique_identifier(k)
-                lazy_union.append(posc.Module(id)(*v))
+                module = posc.Module(id)(*v)
             else:
-                lazy_union.append(v[0])
+                module = v[0]
+            #module.setMetadataName("AAAA " + str(k))
+            lazy_union.append(module)
         
         return lazy_union
         
