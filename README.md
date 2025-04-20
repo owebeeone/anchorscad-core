@@ -4,6 +4,8 @@ AnchorSCAD is a Python 3D modeling API for generating [OpenSCAD](http://www.open
 ## AnchorSCAD Quick Start
 *Author: Gianni Mariani*  
 *Published: March 2022*
+*Latest update: April 2025*
+
 
 AnchorSCAD is a Python 3D modeling API for OpenSCAD. This document covers the minimal set of concepts you need to understand in order to build shapes using AnchorSCAD.
 
@@ -17,6 +19,30 @@ For an overview of AnchorSCAD and how to build complex models see [html](https:/
 
 ### How do I get set up?
 You can follow the [installation instructions](https://github.com/owebeeone/anchorscad-core/blob/master/docs/InstallingAnchorSCAD.md) to install AnchorSCAD and the prerequisite software.
+
+# Viewing Models with `ad_viewer`
+AnchorSCAD, through its integration with the latest PythonOpenSCAD library, can now directly generate 3D meshes using the powerful `manifold3d` library. This means you can visualize your models without needing to install OpenSCAD itself.
+
+The `anchorscad.ad_viewer` module provides a simple command-line tool to render and view specific shapes, examples, parts, or materials from your AnchorSCAD modules.
+
+Example usage:
+```bash
+python -m anchorscad.ad_viewer --module anchorscad --shape Sphere --material default
+```
+
+This command will:
+1.  Import the `Sphere` shape from the `anchorscad` module.
+2.  Render its `default` example.
+3.  Filter the resulting mesh to only include geometry associated with the material named `default`.
+4.  Open a viewer window displaying the mesh.
+
+You can use the `--part` and `--material` arguments to view specific components of complex multi-part/multi-material models. Run `python -m anchorscad.ad_viewer --help` for more options.
+
+```bash
+python -m anchorscad.ad_viewer --module anchorscad_models.cases.rpi.rpi5  --shape RaspberryPi5Case
+```
+
+![AnchorSCAD Viewer Screenshot](assets/ad_viewer_screenshot.png?raw=true)
 
 # Simple Shape
 AnchorSCAD provides tools to wrap your creations in its own `Shape` class. The example below simplifies to demonstrate how shapes are composed in AnchorSCAD. The code below will print OpenSCAD script text to standard output, rendering a box tube.
@@ -45,7 +71,7 @@ Things to note from this example:
 - Once a shape is named, it is also given a frame of reference, becoming a builder object that can have more shapes added. Note that once a builder is added to another builder, it is copied, so subsequent changes to the added builder will not be reflected in the final composition.
 
 # Composite Shapes
-The following code snippet generates a similar box tube shape as demonstrated in the previous example but as an AnchorSCAD `Shape` class. This demonstrates AnchorSCAD’s "parametric" tools. Running this code will generate a file named "**`examples_out/anchorcad_SquarePipe_default_example.scad`**," which can also be imported into other Python programs as shown in the "[SquarePipe](https://github.com/owebeeone/anchorscad/blob/master/src/anchorscad/models/basic/SquarePipe.py)" class as a reusable shape.
+The following code snippet generates a similar box tube shape as demonstrated in the previous example but as an AnchorSCAD `Shape` class. This demonstrates AnchorSCAD's "parametric" tools. Running this code will generate a file named "**`examples_out/anchorcad_SquarePipe_default_example.scad`**," which can also be imported into other Python programs as shown in the "[SquarePipe](https://github.com/owebeeone/anchorscad/blob/master/src/anchorscad/models/basic/SquarePipe.py)" class as a reusable shape.
 
 ![AnchorScad example2](assets/quick_start_example2.png?raw=true)
 
@@ -83,7 +109,7 @@ if __name__ == '__main__':
 
 Note that the `build()` function is called via the [dataclass](https://docs.python.org/3/library/dataclasses.html) generated `__init__()` constructor function. `build()` must return the final shape (maker) object representing the constructed shape.
 
-While it is possible to use AnchorSCAD without the [dataclass](https://docs.python.org/3/library/dataclasses.html) decorator, it greatly simplifies the code when it’s used and it’s highly recommended to use it. AnchorSCAD also extends the functionality of [dataclass](https://docs.python.org/3/library/dataclasses.html) with the `anchorscad.datatree` decorator. `Datatree` is a wrapper over `dataclass` that provides automated parameter injection and binding, allowing for the composition of many shapes without requiring manual duplication of all the parameters, defaults, and documentation. More information about `datatree` can be found [here](https://docs.google.com/document/d/1uTWqF82tEMreAwSKY09njCfgS8xrEtputkNFxwWj_bs/edit?usp=sharing).
+While it is possible to use AnchorSCAD without the [dataclass](https://docs.python.org/3/library/dataclasses.html) decorator, it greatly simplifies the code when it's used and it's highly recommended to use it. AnchorSCAD also extends the functionality of [dataclass](https://docs.python.org/3/library/dataclasses.html) with the `anchorscad.datatree` decorator. `Datatree` is a wrapper over `dataclass` that provides automated parameter injection and binding, allowing for the composition of many shapes without requiring manual duplication of all the parameters, defaults, and documentation. More information about `datatree` can be found [here](https://docs.google.com/document/d/1uTWqF82tEMreAwSKY09njCfgS8xrEtputkNFxwWj_bs/edit?usp=sharing).
 
 
 # Use `template.py` to Create New Shapes
@@ -140,9 +166,9 @@ AnchorSCAD has a primary "Shape" type. To use a shape in AnchorSCAD, a name for 
 
 A Maker is also an `anchorscad.Shape`. A Maker, in particular, is a builder of a node in a shape hierarchy, a collection of other Maker objects. Shapes can have 'anchors' that are used to create frames of reference, i.e., Anchors have both position and orientation. The anchors in a Maker are found by looking up the name specified in the anchor with the named shapes in the Maker itself, and then applying the remaining anchor attributes to the resulting entry. There is a special case that if omitted, the first shape need not be named in the anchor, this can occasionally lead to naming ambiguity but is especially useful in preserving anchor validity when adding nodes to the shape hierarchy.
 
-Note that the evaluated form of an anchor is represented as an `anchorscad.GMatrix` type defined in AnchorSCAD’s “linear” module (i.e., a [4x4 homogeneous matrix](https://www.brainvoyager.com/bv/doc/UsersGuide/CoordsAndTransforms/SpatialTransformationMatrices.html)). When adding another shape, you’re actually adding another Maker. The `Maker.add_at()` allows the specification of where (position + orientation) is placed relative to the shape being modified.
+Note that the evaluated form of an anchor is represented as an `anchorscad.GMatrix` type defined in AnchorSCAD's "linear" module (i.e., a [4x4 homogeneous matrix](https://www.brainvoyager.com/bv/doc/UsersGuide/CoordsAndTransforms/SpatialTransformationMatrices.html)). When adding another shape, you're actually adding another Maker. The `Maker.add_at()` allows the specification of where (position + orientation) is placed relative to the shape being modified.
 
-Note the terms “shape” and “model” are used interchangeably since an AnchorSCAD model that consists of composing many “shapes” is itself also an AnchorSCAD “Shape”.
+Note the terms "shape" and "model" are used interchangeably since an AnchorSCAD model that consists of composing many "shapes" is itself also an AnchorSCAD "Shape".
 
 An AnchorSCAD shape is a subclass of the `anchorscad.Shape` class. The constructor parameters are arbitrary and specific to the implemented shape. Most AnchorSCAD models use the Python dataclass or `anchorscad.datatree` decorators to simplify the generation of Shape classes.
 
@@ -192,42 +218,53 @@ if __name__ == '__main__':
     ad.anchorscad_main()
 ```
 
-The `build()` function (called by the dataclass/datatree generated constructor) after the constructor has populated the instance fields is used to create the composite shape then return the Maker object. The returned shape will have its anchors exposed as the CompositeShape object’s anchors.
+The `build()` function (called by the dataclass/datatree generated constructor) after the constructor has populated the instance fields is used to create the composite shape then return the Maker object. The returned shape will have its anchors exposed as the CompositeShape object's anchors.
 
 AnchorSCAD modules should call `ad.anchorscad_main()` as its main function call. (use the –write command line argument or add a `MAIN_DEFAULT=ad.ModuleDefault(True)` definition in the module to generate the .scad files in the "examples_out" directory.)  When the module is run as a main program, it will identify all shapes decorated with the `@ad.shape` function and execute and render the shapes with the configured example parameters. These shape python modules can still be imported by other shape python modules to allow for complex multi-python module hierarchical shapes.
 
-Defining shape-specific anchors is done using the `@ad.anchor` as shown with the "inner(self, *args, **kwds)" function. The function name becomes the anchor name. In this case, "inner" anchor references the 'hole' shape within the maker’s frame of reference and rotates along the X-axis so that the resulting surface anchor has the Z-axis pointing out of the shape’s surface, which is the AnchorSCAD convention.
+Defining shape-specific anchors is done using the `@ad.anchor` as shown with the "inner(self, *args, **kwds)" function. The function name becomes the anchor name. In this case, "inner" anchor references the 'hole' shape within the maker's frame of reference and rotates along the X-axis so that the resulting surface anchor has the Z-axis pointing out of the shape's surface, which is the AnchorSCAD convention.
 
 The `maker.add_at()` function is used to anchor a shape at an anchor point in the maker. Chaining `.add_at()` calls is possible since the return value is the maker object being called, but chaining `.add_at()` calls is not always desirable.
 
-The result of running the SquarePipe module (with `EXAMPLE_ANCHORS` removed) is the following OpenSCAD file:
+Running the SquarePipe shape will result in a "physical" file that does not contain 
+anchors i.e. (anchorcad_SquarePipe_default_part-default_physical_example.scad). This
+file is show below.:
 
 ```scad
-// 'None : _combine_solids_and_holes'
-union() {
-  // '_combine_solids_and_holes'
-  difference() {
-    // 'default : _combine_solids_and_holes'
-    union() {
+// Start: lazy_union
+default_5_default_5();
+// End: lazy_union
+
+// Modules.
+
+// 'PartMaterial undef-default - default 5.0'
+module default_5_default_5() {
+  // 'None : _combine_solids_and_holes'
+  union() {
+    // '_combine_solids_and_holes'
+    difference() {
+      // 'default : _combine_solids_and_holes'
+      union() {
+        // 'outer'
+        multmatrix(m=[[1.0, 0.0, 0.0, -35.0], [0.0, 1.0, 0.0, -25.0], [0.0, 0.0, 1.0, -15.0], [0.0, 0.0, 0.0, 1.0]]) {
+          // 'outer : _combine_solids_and_holes'
+          union() {
+            // 'outer'
+            cube(size=[70.0, 50.0, 30.0]);
+          }
+        }
+      }
       // 'default'
-      multmatrix(m=[[1.0, 0.0, 0.0, -35.0], [0.0, 1.0, 0.0, -25.0], [0.0, 0.0, 1.0, -15.0], [0.0, 0.0, 0.0, 1.0]]) {
-        // 'outer : _combine_solids_and_holes'
+      multmatrix(m=[[1.0, 0.0, 0.0, -30.0], [0.0, 1.0, 0.0, -20.0], [0.0, 0.0, 1.0, -15.0005], [0.0, 0.0, 0.0, 1.0]]) {
+        // 'hole : _combine_solids_and_holes'
         union() {
-          // 'outer'
-          cube(size=[70.0, 50.0, 30.0]);
+          // 'hole'
+          cube(size=[60.0, 40.0, 30.001]);
         }
       }
     }
-    // 'default'
-    multmatrix(m=[[1.0, 0.0, 0.0, -30.0], [0.0, 1.0, 0.0, -20.0], [0.0, 0.0, 1.0, -15.0005], [0.0, 0.0, 0.0, 1.0]]) {
-      // 'hole : _combine_solids_and_holes'
-      union() {
-        // 'hole'
-        cube(size=[60.0, 40.0, 30.001]);
-      }
-    }
   }
-}
+} // end module default_5_default_5
 ```
 
 # Multi-Material and Multi-Part Models
