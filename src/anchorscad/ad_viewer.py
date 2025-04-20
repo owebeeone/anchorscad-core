@@ -59,12 +59,21 @@ if __name__ == "__main__":
         #     "--example",
         #     "default",
         # ]
+        # sys.argv = [
+        #     sys.argv[0],
+        #     "--module",
+        #     "anchorscad",
+        #     "--shape",
+        #     "AnnotatedCoordinates",
+        #     "--example",
+        #     "default",
+        # ]
         sys.argv = [
             sys.argv[0],
             "--module",
             "anchorscad",
             "--shape",
-            "AnnotatedCoordinates",
+            "LinearExtrude",
             "--example",
             "default",
         ]
