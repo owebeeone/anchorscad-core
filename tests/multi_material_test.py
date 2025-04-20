@@ -62,7 +62,7 @@ class MultiMaterialTest(ad.CompositeShape):
 
 # Uncomment the line below to default to writing OpenSCAD files
 # when anchorscad_main is run with no --write or --no-write options.
-MAIN_DEFAULT=ad.ModuleDefault(all=False)
+MAIN_DEFAULT=ad.ModuleDefault(all=True)
 
 if __name__ == "__main__":
     ad.anchorscad_main()
