@@ -9,8 +9,6 @@ AnchorSCAD is a Python 3D modeling API for generating [OpenSCAD](http://www.open
 
 AnchorSCAD is a Python 3D modeling API for OpenSCAD. This document covers the minimal set of concepts you need to understand in order to build shapes using AnchorSCAD.
 
-**Note**: This document can be found [here](https://docs.google.com/document/d/1p-qAE5oR-BQ2jcotNhv5IGMNw_UzNxbYEiZat76aUy4/edit?usp=sharing) on Google Docs, which contains figures that are not provided here due to limitations when exporting markdown from Google Docs.
-
 It's assumed that you are familiar with the Python programming language, especially classes, inheritance, dataclasses, and decorators.
 
 For more information about [AnchorSCAD](https://docs.google.com/document/u/0/d/1yz5QjYTP7aOi6IRqGXDXWZadRwJOYG2clJnmceQCqxg/edit), follow this [link](https://docs.google.com/document/u/0/d/1yz5QjYTP7aOi6IRqGXDXWZadRwJOYG2clJnmceQCqxg/edit).
@@ -18,7 +16,7 @@ For more information about [AnchorSCAD](https://docs.google.com/document/u/0/d/1
 For an overview of AnchorSCAD and how to build complex models see [html](https://owebeeone.github.io/anchorscad/) [docs](https://docs.google.com/document/d/1D2kI2W5mLDGU19RZ1440_adDrhwZDFRImPWi2vifMag/edit?usp=sharing) - this documents in detail [shape operators (solid, hole etc)](https://owebeeone.github.io/anchorscad/#h.vmyont8is7vh) and how to [chain calls to create Makers/model graph node builders](https://owebeeone.github.io/anchorscad/#h.7w0f9846dojm).
 
 ### How do I get set up?
-You can follow the [installation instructions](https://github.com/owebeeone/anchorscad-core/blob/master/docs/InstallingAnchorSCAD.md) to install AnchorSCAD and the prerequisite software.
+You can follow the [installation instructions](https://github.com/owebeeone/anchorscad-core/blob/main/docs/InstallingAnchorSCAD.md) to install AnchorSCAD and the prerequisite software.
 
 # Viewing Models with `ad_viewer`
 AnchorSCAD, through its integration with the latest PythonOpenSCAD library, can now directly generate 3D meshes using the powerful `manifold3d` library. This means you can visualize your models without needing to install OpenSCAD itself.
@@ -111,9 +109,14 @@ Note that the `build()` function is called via the [dataclass](https://docs.pyth
 
 While it is possible to use AnchorSCAD without the [dataclass](https://docs.python.org/3/library/dataclasses.html) decorator, it greatly simplifies the code when it's used and it's highly recommended to use it. AnchorSCAD also extends the functionality of [dataclass](https://docs.python.org/3/library/dataclasses.html) with the `anchorscad.datatree` decorator. `Datatree` is a wrapper over `dataclass` that provides automated parameter injection and binding, allowing for the composition of many shapes without requiring manual duplication of all the parameters, defaults, and documentation. More information about `datatree` can be found [here](https://docs.google.com/document/d/1uTWqF82tEMreAwSKY09njCfgS8xrEtputkNFxwWj_bs/edit?usp=sharing).
 
+# Use Shape Templates to Create New Shapes
+The `anchorscad` package includes several template files to use as starting points when creating new AnchorSCAD shape modules. These templates contain simple `CompositeShape` classes demonstrating common patterns.
 
-# Use `template.py` to Create New Shapes
-The file in the AnchorSCAD package named "[template.py](https://github.com/owebeeone/anchorscad/blob/master/src/anchorscad/template.py)" should be used as your base template when creating a new AnchorSCAD shape Python module. This file contains a simple `CompositeShape` class. The name of the class, the docstring, fields, and implementation of the `build()` function should all be specialized for the shape being coded. It makes sense to have exclusively related shapes within the same module. The template make use of [datatree](https://github.com/owebeeone/anchorscad/blob/master/src/anchorscad/datatree.py) "Node" and "self_default" features.
+*   **[`template.py`](https://github.com/owebeeone/anchorscad/blob/main/src/anchorscad/template.py)**: The base template, showing a simple `CompositeShape` using a `datatree` `Node` (`box_node`) to build a basic `Box`.
+*   **[`template_with_dt_node.py`](https://github.com/owebeeone/anchorscad/blob/main/src/anchorscad/template_with_dt_node.py)**: Similar to the base template, but explicitly uses `ad.ShapeNode` typing for the `box_node`.
+*   **[`template_with_extrusion.py`](https://github.com/owebeeone/anchorscad/blob/main/src/anchorscad/template_with_extrusion.py)**: Demonstrates creating a shape based on a 2D path built with `ad.PathBuilder` and then extruded using `ad.LinearExtrude`.
+
+When using a template, you should specialize the class name, docstring, fields, and the implementation of the `build()` function for the shape being coded. It makes sense to keep related shapes within the same Python module.
 
 ## `anchorscad_main()`
 All AnchorSCAD shape modules should include the following lines at the end of the
@@ -268,11 +271,11 @@ module default_5_default_5() {
 ```
 
 # Multi-Material and Multi-Part Models
-AnchorSCAD now supports [Multi-Material and Multi-Part models](https://github.com/owebeeone/anchorscad-core/blob/master/docs/multi_material.md) using OpenScad's experimental lazy-union feature when exporting 3mf files but will also generate STL files for each physical part. 
+AnchorSCAD now supports [Multi-Material and Multi-Part models](https://github.com/owebeeone/anchorscad-core/blob/main/docs/multi_material.md) using OpenScad's experimental lazy-union feature when exporting 3mf files but will also generate STL files for each physical part. 
 All example created models will use materials "default" and "anchor". The anchor 
 part of the model is considered "non physical" and may be excluded from slicing if the 
 part is configured appropriately. See the 
-[Multi-Material docs](https://github.com/owebeeone/anchorscad-core/blob/master/docs/multi_material.md) for more information.
+[Multi-Material docs](https://github.com/owebeeone/anchorscad-core/blob/main/docs/multi_material.md) for more information.
 
 [See how to keep holes when composing shapes.](https://docs.google.com/document/d/1dzWQPXcKU3TKnAUiqt6m0hTi0N4WW7o3GempQX9IVjQ/edit?usp=sharing)
 
