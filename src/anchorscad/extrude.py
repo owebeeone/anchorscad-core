@@ -420,12 +420,12 @@ class OpBase(ABC):
     def render_as_svg(self, svg_model):
         raise NotImplementedError('Derived class must implement this.')
     
-    def get_centre(self):
+    def get_centre(self) -> Union[np.array, None]:
         '''Returns the centre of the operation, if the operation has a centre.'''
         return None
 
     def azimuth_t(self, angle: Union[float, l.Angle]=0, t_end: bool=False, 
-                t_range: Tuple[float, float]=(0.0, 1.0)) -> Tuple[float, ...]:
+                t_range: Tuple[float, float]=(0.0, 1.0)) -> tuple[float, ...] | None:
         # Base implementation defaults to not having an azimuth.
         return None
     
@@ -812,16 +812,106 @@ class Path():
     path_modifier: PathModifier=dtfield(default=None)
     constructions: List['Construction']=dtfield(default=None)
 
-    def get_node(self, name):
+    def get_node(self, name) -> OpBase | None:
         return self.name_map.get(name, None)
     
-    def get_centre_of(self, name):
+    def get_centre_of(self, name) -> Union[np.array, None]:
         node = self.get_node(name)
         if not node:
             raise PathElelementNotFound(f'Unable to find path element: {name}')
         return node.get_centre()
     
+    def at_node_t(self, path_node_name, t: float = 0) -> tuple[np.array, np.array]:
+        """Returns the position and tangent at the given t value."""
+        node = self.get_node(path_node_name)
+        if not node:
+            raise PathElelementNotFound(f'Unable to find path element: {path_node_name}')
+        return node.position(t), node.direction_normalized(t)
+    
+    def at_centre_of(self, name: str, alt_name: str | None=None, t: float=0) -> tuple[np.array, np.array]:
+        """Returns the position and tangent at the centre of the path element."""
+        node = self.get_node(name)
+        if not node:
+            raise PathElelementNotFound(f'Unable to find path element named: "{name}"')
+        centre = node.get_centre()
+        if centre is None:
+            raise UnknownOperationException(f'Segment has no "centre" property: {name}')
+        if alt_name:
+            dir_node = self.get_node(alt_name)
+            if not dir_node:
+                raise PathElelementNotFound(f'Unable to find path element named: "{alt_name}"')
+        else:
+            dir_node = node
+        dir = dir_node.direction_normalized(t)
+        return centre, dir
+    
+    @overload
+    def at_pos_dir(self, name: str, t: float) -> tuple[np.array, np.array]:
+        """Returns the position at the given t value."""
+        ...
+    
+    @overload
+    def at_pos_dir(self, name: str, azimuth: float | l.Angle, t_index: int=0) -> tuple[np.array, np.array]:
+        """Returns the position and tangent at the given azimuth and t value."""
+        ...
+        
+    @overload
+    def at_pos_dir(self, centre: str, alt_name: str | None=None, t: float=0) -> tuple[np.array, np.array]:
+        """Returns the position of the centre of the path element "centre" the direction at
+        the given t value and optionally the alternate segment name "alt_name".
+        ."""
+        ...
+    
+    def at_pos_dir(self, *args, **kwargs) -> tuple[np.array, np.array]:
+        """Returns the position and tangent for the given anchor params.
+        """
+        if 'azimuth' in kwargs:
+            angle = kwargs.pop('azimuth')
+            return self.at_azimuth_t(*args, angle=angle, **kwargs)
+        
+        if 'centre' in kwargs:
+            name = kwargs.pop('centre')
+            return self.at_centre_of(name, *args, **kwargs)
+        
+        return self.at_node_t(*args, **kwargs)
+    
+    def at(self, *args, **kwargs) -> l.GMatrix:
+        """Returns the GMatrix for the given anchor params - this rotates about the z axis
+        and translates only in the x, y plane.
+        """
+        pos, dir = self.at_pos_dir(*args, **kwargs)
+        
+        return l.translate((*pos, 0)) * l.angle(cosr_sinr=dir).rotZ
+    
+    def at_azimuth_t(self, name, angle: float | l.Angle=0, t_end: bool=False, 
+                t_range: Tuple[float, float]=(0.0, 1.0), t_index: int=0) \
+                    -> tuple[np.ndarray, np.ndarray]:
+        """Returns the position and tangent at the given azimuth and t value.
+        Args:
+            name: The name of the path element.
+            angle: The angle (in degrees or l.Angle) which it is desired to find the t.
+            t_end: If True then the angle is measured from the end of the segment.
+            t_range: The range of t to search for the t value that matches the angle.
+            t_index: The index of the t value to return.
+        """
+        node: OpBase = self.get_node(name)
+        if not node:
+            raise PathElelementNotFound(f'Unable to find path element named: "{name}"')
 
+        # Potentially multiple t values.
+        ts: tuple[float, ...] = node.azimuth_t(angle, t_end, t_range)
+        if not ts or len(ts) < t_index + 1:
+            params_str = f'az_angle={angle} t_index={t_index} t_end={t_end} t_range={t_range}'
+            if ts:
+                # Requesting the second root but it's not there.
+                raise AzimuthNotPossibleOnSegment(
+                    f'Requested t_index not available for "{name}" with {params_str}')
+            raise AzimuthNotPossibleOnSegment(
+                f'Azimuth not possible for segment "{name}" with {params_str}')
+        
+        t = ts[t_index]
+        return node.position(t), node.direction_normalized(t)
+    
     def azimuth_t(self, name, angle: float | l.Angle=0, t_end: bool=False, 
                 t_range: Tuple[float, float]=(0.0, 1.0)) -> Tuple[float, ...]:
         '''Returns the list of t where the tangent is at the given angle changed
@@ -1040,12 +1130,26 @@ class Path():
         '''Returns a new Path but transformed by m with offset path modifier.'''
         return self.transform_to_builder(m=m, offset=offset, metadata=metadata).build()
 
+    def transform_for_rotate_extrude(self, m: l.GMatrix, radius: float=0.0) -> 'Path':
+        '''Transforms to an orientation to allow for rotate_extrude for a radius.'''
+        xform = l.ROTZ_90 * m
+        new_path = self.transform(xform)
+        bbox = new_path.extents(include_constructions=False)
+        offset_path = radius - bbox[0][0]
+        return new_path.transform(l.tranX(offset_path))
+    
 
 def to_gvector(np_array):
     if len(np_array) == 2:
         return l.GVector([np_array[0], np_array[1], 0, 1])
     else:
         return l.GVector(np_array)
+    
+def to_3ddirection(np_array):
+    if len(np_array) == 2:
+        return np.array([np_array[0], np_array[1], 0, 0])
+    else:
+        return np.array([np_array[0], np_array[1], np_array[2], 0])
     
     
 # Solution derived from https://planetcalc.com/8116/
@@ -1376,6 +1480,10 @@ class PathBuilderPrimitives(ABC):
         def transform(self, m):
             params = self._as_non_defaults_dict()
             params['point'] = (m * to_gvector(self.point)).A[0:len(self.point)]
+            if self.direction_override is not None:
+                params['direction_override'] = \
+                    (m.A @ to_3ddirection(self.direction_override))[0:len(self.point)]
+            params.pop('direction_norm', None)
             return (self.__class__, params)
         
         def render_as_svg(self, svg_model):
@@ -1441,6 +1549,8 @@ class PathBuilderPrimitives(ABC):
         def transform(self, m):
             params = self._as_non_defaults_dict()
             params['point'] = (m * to_gvector(self.point)).A[0:len(self.point)]
+            if self.dir is not None:
+                params['dir'] = m.A @ to_3ddirection(self.dir)
             return (self.__class__, params)
         
         def apply_modifier(self, path_modifier: 'PathModifier', next_op: 'OpBase') -> 'OpBase':
@@ -1656,7 +1766,7 @@ class PathBuilderPrimitives(ABC):
             object.__setattr__(self, 'arcto', CircularArc(
                 start_angle, end_delta, radius_start, self.centre))
             
-        def get_centre(self):
+        def get_centre(self) -> np.array:
             return self.centre
 
         def azimuth_t(self, angle: Union[float, l.Angle]=0, t_end: bool=False, 
@@ -1990,10 +2100,8 @@ class PathBuilderPrimitives(ABC):
                     to be the given length from the respective start and end points.
             name: The name of this node. Naming a node will make it an anchor.
             metadata: Provides parameters for rendering that override the renderer metadata.
-            degrees: A 2 tuple that contains a rotation angle for control points 1 and 2
+            angle: A 2 tuple that contains a rotation angle for control points 1 and 2
                     respectively.
-            radians: line degrees but in radians. If radians are provided they override any
-                    degrees values provided.
             rel_len: Forces control points to have relatively the same length as the
                     distance from the end points. If cv_len is set it is used as a multiplier.
         '''
@@ -2285,8 +2393,19 @@ class PathBuilderPrimitives(ABC):
         if not op:
             raise NameNotFoundException(f'Name {name!r} not found.')
         return op.direction_normalized(t)
-        
 
+@datatree(frozen=True)
+class PathAnchor:
+    args: tuple[Any, ...]
+    kwargs: dict[str, Any]
+    
+    def apply_to_path(self, path: 'Path') -> l.GMatrix:
+        return path.at(*self.args, **self.kwargs)
+    
+    @classmethod
+    def anchor(cls, *args, **kwargs) -> 'PathAnchor':
+        return cls(args, kwargs)
+    
 @datatree(frozen=True)
 class Construction:
     ops: List[OpBase]=None
@@ -2739,6 +2858,7 @@ class LinearExtrude(ExtrudedShape):
     slices: int=dtfield(4, doc='The number of slices to use for the extrusion if twist is applied.')
     scale: float=dtfield((1.0, 1.0), doc='The scale of the extrusion in X and Y.')
     fn: int=dtfield(None, doc='The number of facets to use for the extrusion.')
+    path_fn: int=dtfield(None, doc='The number of facets to use for the extrusion.')
     use_polyhedrons: bool=dtfield(None, doc='If true will use polyhedrons to generate the extrusion.')
     
     _SCALE=2
@@ -2914,8 +3034,10 @@ class LinearExtrude(ExtrudedShape):
             return self.render_as_linear_extrude(renderer)
         
     def get_path_attributes(self, renderer):
-        metadata = renderer.get_current_attributes()
-        if self.fn:
+        metadata = renderer.get_current_attributes()            
+        if self.path_fn:
+            metadata = metadata.with_fn(self.path_fn)  
+        elif self.fn:
             metadata = metadata.with_fn(self.fn)
             
         if self.twist or self.scale != (1, 1):
@@ -2929,7 +3051,7 @@ class LinearExtrude(ExtrudedShape):
             self, 
             renderer, 
             ('fn',), 
-            exclude=('path', 'use_polyhedrons'), 
+            exclude=('path', 'use_polyhedrons', 'path_fn'), 
             xlation_table={'h': 'height'})
         return renderer.add(renderer.model.linear_extrude(**params)(polygon))
     
@@ -2967,7 +3089,16 @@ class LinearExtrude(ExtrudedShape):
         return eliplse_angle - circle_angle
         
     @core.anchor('Anchor to the path edge and surface.')
-    def edge(self, path_node_name, t=0, h=0, rh=None, align_twist=False, align_scale=False, apply_offset=True):
+    def edge(self, 
+             path_node_name, 
+             t:float =0, 
+             h:float =0, 
+             rh:float | None =None, 
+             ex_end: bool=False,
+             linear_compat: bool=False,
+             align_twist:bool =False, 
+             align_scale:bool =False, 
+             apply_offset:bool =True) -> l.GMatrix:
         '''Anchors to the edge and surface of the linear extrusion.
         Args:
             path_node_name: The path node name to attach to.
@@ -2980,9 +3111,16 @@ class LinearExtrude(ExtrudedShape):
                            applied to the position. This provides an easy way to align
                            the anchor to the base Path of the extrusion.
         '''
+        if linear_compat:
+            ex_end = not ex_end
         if rh is not None:
             h = h + rh * self.h
-        op = self.path.name_map.get(path_node_name)
+        if ex_end:
+            h = self.h - h
+        if isinstance(path_node_name, OpBase):
+            op = path_node_name
+        else:
+            op = self.path.name_map.get(path_node_name)
         if not op:
             raise UnknownOperationException(f'Could not find {path_node_name}')
         pos = self.to_3d_from_2d(op.position(t), h)
@@ -3032,6 +3170,28 @@ class LinearExtrude(ExtrudedShape):
         # Descaling the matrix so the co-ordinates don't skew.
         result = result.descale()
         return result
+    
+    @core.anchor('Anchor to the path edge projected to surface by path op index.')
+    def path_op(self, 
+                path_op_index:int =1, 
+                t:float =0, 
+                h:float =0, 
+                rh:float | None =None, 
+                ex_end: bool=False,
+                linear_compat: bool=False,
+                align_twist:bool =False, 
+                align_scale:bool =False, 
+                apply_offset:bool =True) -> l.GMatrix:
+        return self.edge(
+            path_node_name=self.path.ops[path_op_index], 
+            t=t, 
+            h=h, 
+            rh=rh, 
+            ex_end=ex_end,
+            linear_compat=linear_compat,
+            align_twist=align_twist, 
+            align_scale=align_scale, 
+            apply_offset=apply_offset)
     
     @core.anchor('Centre of segment.')
     def centre_of(self, segment_name, t=0, rh=0, normal_segment=None, angle=0) -> l.GMatrix:
@@ -3293,16 +3453,18 @@ class RotateExtrude(ExtrudedShape):
     
     def select_attrs(self, renderer):
         meta_data = renderer.get_current_attributes()
-        if self.fn:
-            return meta_data.with_fn(self.fn)
         if self.path_fn:
             return meta_data.with_fn(self.path_fn)
+        elif self.fn:
+            return meta_data.with_fn(self.fn)
         return meta_data
     
     def select_path_attrs(self, renderer):
         meta_data = self.select_attrs(renderer)
         if self.path_fn:
-            meta_data = meta_data.with_fn(self.path_fn)
+            meta_data = meta_data.with_fn(self.path_fn)  
+        elif self.fn:
+            meta_data = meta_data.with_fn(self.fn)
         return meta_data
     
     def render(self, renderer):
@@ -3399,10 +3561,64 @@ class RotateExtrude(ExtrudedShape):
         return eliplse_angle - circle_angle
 
     @core.anchor('Anchor to the path edge projected to surface.')
-    def edge(self, path_node_name, t=0, angle=0, apply_offset=True):
+    def edge(self, 
+             path_node_name: Any, 
+             t: float=0, 
+             angle: l.Angle | float=0,
+             ex_end: bool=False,
+             linear_compat: bool=False,
+             apply_offset: bool=True) -> l.GMatrix:
         '''Anchors to the edge projected to the surface of the rotated extrusion.
         Args:
             path_node_name: The path node name to attach to.
+            t: 0 to 1 being the beginning and end of the segment. Numbers out of 0-1
+               range will depart the path linearly.
+            angle: The angle along the rotated extrusion.
+            ex_end: If True, then the anchor will be at the end of the extrusion.
+            apply_offset: If True and the Path has an offset, then the offset will be
+                    applied to the position. This provides an easy way to align
+                    the anchor to the base Path of the extrusion.
+        '''
+        angle: l.Angle = l.angle(angle)
+        op: OpBase | None = None
+        if isinstance(path_node_name, OpBase):
+            op = path_node_name
+        elif path_node_name in self.path.name_map:
+            op = self.path.name_map.get(path_node_name)
+        if op is None:
+            raise PathElelementNotFound(f'Could not find {path_node_name}')
+        normal = op.normal2d(t)
+        pos = op.position(t, apply_offset=apply_offset)
+        if ex_end:
+            self_angle = l.angle(self.angle)
+            ref_angle = self_angle - angle
+        else:
+            ref_angle = angle
+        if linear_compat:
+            return (ref_angle.rotZ
+                     * l.ROTX_90  # Projection from 2D Path to 3D space
+                     * l.translate([pos[0], pos[1], 0])
+                     * l.ROTY_90  
+                     * l.rotXSinCos(normal[1], -normal[0])
+                     * l.ROTZ_90)
+            
+        return (ref_angle.rotZ
+                     * l.ROTX_90  # Projection from 2D Path to 3D space
+                     * l.translate([pos[0], pos[1], 0])
+                     * l.ROTY_90  
+                     * l.rotXSinCos(normal[1], -normal[0]))
+        
+    @core.anchor('Anchor to the path edge projected to surface by path op index.')
+    def path_op(self, 
+                path_op_index: int =1, 
+                t: float=0, 
+                angle: l.Angle | float=0.0, 
+                ex_end: bool=False,
+                linear_compat: bool=False,
+                apply_offset: bool=True) -> l.GMatrix:
+        '''Anchors to the edge projected to the surface of the rotated extrusion.
+        Args:
+            path_op_index: The index of the path op to anchor to.
             t: 0 to 1 being the beginning and end of the segment. Numbers out of 0-1
                range will depart the path linearly.
             angle: The angle along the rotated extrusion.
@@ -3410,21 +3626,14 @@ class RotateExtrude(ExtrudedShape):
                     applied to the position. This provides an easy way to align
                     the anchor to the base Path of the extrusion.
         '''
-        angle: l.Angle = l.angle(angle)
-        if path_node_name not in self.path.name_map:
-            raise PathElelementNotFound(f'Could not find {path_node_name}')
-        op = self.path.name_map.get(path_node_name)
-        if op is None:
-            raise PathElelementNotFound(f'Could not find {path_node_name}')
-        normal = op.normal2d(t)
-        pos = op.position(t, apply_offset=apply_offset)
+        return self.edge(
+            path_node_name=self.path.ops[path_op_index],
+            t=t, 
+            angle=angle, 
+            ex_end=ex_end,
+            linear_compat=linear_compat,
+            apply_offset=apply_offset)
         
-        return (angle.rotZ
-                     * l.ROTX_90  # Projection from 2D Path to 3D space
-                     * l.translate([pos[0], pos[1], 0])
-                     * l.ROTY_90  
-                     * l.rotXSinCos(normal[1], -normal[0]))
-
     @core.anchor('Centre of the extrusion arc.')
     def centre(self):
         return l.IDENTITY
@@ -3474,7 +3683,7 @@ class RotateExtrude(ExtrudedShape):
 
 # Uncomment the line below to default to writing OpenSCAD files
 # when anchorscad_main is run with no --write or --no-write options.
-MAIN_DEFAULT=core.ModuleDefault(all=True)
+MAIN_DEFAULT=core.ModuleDefault(all=2, write_stl_mesh_files=False)
 
 if __name__ == "__main__":
     #test()

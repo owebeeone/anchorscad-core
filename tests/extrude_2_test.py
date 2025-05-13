@@ -5,12 +5,77 @@ Created on 5 Feb 2021
 '''
 
 
+from dataclasses import dataclass, field
+import sys
+import time
 import unittest
 
 import anchorscad as ad
 import anchorscad.extrude as extrude
 from anchorscad_lib.test_tools import iterable_assert
 import numpy as np
+
+import matplotlib.pyplot as plt
+
+IS_CLOSED = False
+IS_INTERACTIVE = False
+
+class Finished(Exception):
+    pass
+
+@dataclass
+class PlotBase:
+    title: str
+    cid: object = field(init=False)
+    
+    def onclick(self, event):
+        global IS_INTERACTIVE
+        IS_INTERACTIVE = True
+    
+    def onclose(self, event):
+        global IS_CLOSED
+        IS_CLOSED = True
+        
+    def init_plot(self) -> tuple[plt.Figure, plt.Axes]:
+        # Plot the results.
+        fig, ax = plt.subplots()
+        
+        self.cid = fig.canvas.mpl_connect('close_event', lambda e : self.onclose(e))
+        self.cid = fig.canvas.mpl_connect('button_press_event', lambda e : self.onclick(e))
+        # Add a title to the plot.
+        ax.set_title(self.title)
+        ax.set_aspect('equal')
+        # Use the "tight" layout.
+        plt.tight_layout(pad=0, h_pad=0, w_pad=0, rect=[0, 0, 1, 1])
+        ax.set_in_layout(False)
+        plt.ion()
+        # Render the image to the size of the screen.
+        fig.set_size_inches(10.5, 10.5)
+        
+        return fig, ax
+    
+@dataclass
+class PlotPath(PlotBase):
+    title: str
+    points: np.ndarray
+    
+    def __post_init__(self):
+        self.plot_path()
+        
+    def plot_path(self):
+        fig, ax = self.init_plot()
+        points = np.squeeze(self.points)
+        # Plot points
+        ax.plot(points[:, 0], points[:, 1], 'ro')
+        # Plot lines between points
+        ax.plot(points[:, 0], points[:, 1], 'r-')
+        # If the last and first points are different, plot a blue line between them
+        if not np.allclose(points[0], points[-1]):
+            ax.plot([points[-1, 0], points[0, 0]], [points[-1, 1], points[0, 1]], 'b-')
+        # Annotate each point with its index
+        for idx, (x, y) in enumerate(points):
+            ax.text(x, y, str(idx), fontsize=10, ha='right', va='bottom', color='black')
+        plt.show()
 
 
 TEST_META_DATA = ad.EMPTY_ATTRS.with_fn(10)
@@ -146,11 +211,101 @@ class ExtrudeTest2(unittest.TestCase):
                             [ 1.18968176e+00, -7.01514758e-01],
                             [-1.77635684e-15, -8.88178420e-16]],))
         
-        #print(path.extents())
+        pos, dir = path.at_pos_dir(centre='arc', t=0.5)
+        iterable_assert(self.assertAlmostEqual,
+                        [pos, dir], 
+                        [[3.75, 5.  ], [-0.89442719, -0.4472136 ]])
         
+        pos, dir = path.at_pos_dir('arc', t=0.5)
+        iterable_assert(self.assertAlmostEqual,
+                        [pos, dir], 
+                        [[ 6.54508497, -0.59016994], [-0.89442719, -0.4472136 ]])
         
+        pos, dir = path.at_pos_dir('spline', azimuth=-1)
+        iterable_assert(self.assertAlmostEqual,
+                        [pos, dir], 
+                        [[5.03016712, 5.0175577 ], [0.8684791 , 0.49572578]])
+    
+    def test_at_reorient(self):
+        path: extrude.Path = (extrude.PathBuilder()
+            .move([0, 0])
+            .line([0, 10], 'line1')
+            .line([10, 10], 'line2')
+            .line([10, 0], 'line3')
+            .line([0, 0], 'line4')
+            .build())
         
+        pos, dir = path.at_pos_dir('line1', t=0.5)
+        iterable_assert(self.assertAlmostEqual, [pos, dir],
+                        [[0, 5], [0, 1]])
+        
+        mat: ad.GMatrix = path.at('line1', t=0.5)
+        points = path.cleaned_polygons(ad.ModelAttributes(fn=8))
+        PlotPath(title='Original', points=points)
+        
+        xform_path = path.transform(mat.I)
+        points = xform_path.cleaned_polygons(ad.ModelAttributes(fn=8))
+        PlotPath(title='Transformed', points=points)
+        
+    def test_at_reorient_2(self):
+        angles = (190, 185, 270)
+        path: extrude.Path = self.makeArcPointsPath(*angles)
+        points = path.cleaned_polygons(ad.ModelAttributes(fn=63))
+        PlotPath(title='Original Arc', points=points)
+        
+        mat: ad.GMatrix = path.at('arc', t=0.5)
+        xform_path = path.transform(mat.I)
+        points = xform_path.cleaned_polygons(ad.ModelAttributes(fn=63))
+        PlotPath(title='Transformed Arc', points=points)
+        
+        matI = mat.I
+        path_for_rotate_extrude = path.transform_for_rotate_extrude(matI, radius=5)
+        points = path_for_rotate_extrude.cleaned_polygons(ad.ModelAttributes(fn=63))
+        PlotPath(title='Transformed Arc for Rotate Extrude', points=points)
+        
+    def test_at_reorient_3(self):
+        path: extrude.Path = (extrude.PathBuilder()
+            .move((0, 0))
+            .line((10, 0), 'line1')
+            .spline(((10, 10), (10, 10), (0, 10)), name='spline1', cv_len=(10, 3))
+            .line((0, 0), 'line2')
+            .build())
+        
+        path = path.transform(ad.rotZ(45))
+        
+        points = path.cleaned_polygons(ad.ModelAttributes(fn=63))
+        PlotPath(title='Original Path', points=points)
+        
+        mat: ad.GMatrix = path.at('spline1', t=0.5)
+        matI = mat.I
+        xform_path = path.transform(matI)
+        points = xform_path.cleaned_polygons(ad.ModelAttributes(fn=63))
+        PlotPath(title='Transformed Path', points=points)
+        
+        path_for_rotate_extrude = path.transform_for_rotate_extrude(matI, radius=5)
+        points = path_for_rotate_extrude.cleaned_polygons(ad.ModelAttributes(fn=63))
+        PlotPath(title='Transformed Arc for Rotate Extrude', points=points)
+        
+        path_for_rotate_extrude = path.transform_for_rotate_extrude(matI * ad.rotZ(180), radius=5)
+        points = path_for_rotate_extrude.cleaned_polygons(ad.ModelAttributes(fn=63))
+        PlotPath(title='Transformed Arc for Rotate Extrude Other Side', points=points)
+
+def pause_on_close(timeout_seconds):
+    start_time = time.time()
+    is_timed_out = False
+    while not IS_CLOSED and (not is_timed_out or IS_INTERACTIVE):
+        manager = plt.get_current_fig_manager()
+        if manager is not None:
+            canvas = manager.canvas
+            if canvas.figure.stale:
+                # Update the screen as the canvas wasn't fully drawn yet.
+                canvas.draw_idle()
+            canvas.start_event_loop(0.1)
+        is_timed_out = (time.time() - start_time >= timeout_seconds)
+    return        
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()
+    test = unittest.main(exit=False)
+    pause_on_close(3)
+    sys.exit(not test.result.wasSuccessful())

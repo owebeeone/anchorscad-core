@@ -15,7 +15,15 @@ def make_poscbase(
     """
     Convert an Anchorscad shape to a PythonOpenSCAD object.
     """
-    maker, shape = shape_clz.example(example_name)
+    try:
+        maker, shape = shape_clz.example(example_name)
+    except KeyError:
+        if hasattr(shape_clz, 'EXAMPLES_EXTENDED'):
+            available_examples = ['default'] + list(shape_clz.EXAMPLES_EXTENDED.keys())
+        else:
+            available_examples = ['default']
+        raise ValueError(f"Example {example_name} not found in shape {shape_clz.__name__}. "
+                         f"Available examples: {available_examples}")
 
     def make_model():
         result = render(maker)
@@ -114,15 +122,15 @@ if __name__ == "__main__":
         #     "--example",
         #     "default",
         # ]
-        # sys.argv = [
-        #     sys.argv[0],
-        #     "--module",
-        #     "anchorscad",
-        #     "--shape",
-        #     "AnnotatedCoordinates",
-        #     "--example",
-        #     "default",
-        # ]
+        sys.argv = [
+            sys.argv[0],
+            "--module",
+            "anchorscad_models.cases.rpi.rpi4",
+            "--shape",
+            "RaspberryPi4Case",
+            "--example",
+            "bottom",
+        ]
         # sys.argv = [
         #     sys.argv[0],
         #     "--module",
@@ -148,5 +156,16 @@ if __name__ == "__main__":
         #     # "part0",
         #     # "--material",
         #     # "mat2",
+        # ]
+        # sys.argv = [
+        #     sys.argv[0],
+        #     "--module",
+        #     "anchorscad",
+        #     "--shape",
+        #     "LinearExtrude",
+        #     "--example",
+        #     "default",
+        #     # "--part",
+        #     # "default",
         # ]
     main()

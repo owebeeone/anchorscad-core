@@ -69,7 +69,7 @@ Things to note from this example:
 - Once a shape is named, it is also given a frame of reference, becoming a builder object that can have more shapes added. Note that once a builder is added to another builder, it is copied, so subsequent changes to the added builder will not be reflected in the final composition.
 
 # Composite Shapes
-The following code snippet generates a similar box tube shape as demonstrated in the previous example but as an AnchorSCAD `Shape` class. This demonstrates AnchorSCAD's "parametric" tools. Running this code will generate a file named "**`examples_out/anchorcad_SquarePipe_default_example.scad`**," which can also be imported into other Python programs as shown in the "[SquarePipe](https://github.com/owebeeone/anchorscad/blob/master/src/anchorscad/models/basic/SquarePipe.py)" class as a reusable shape.
+The following code snippet generates a similar box tube shape as demonstrated in the previous example but as an AnchorSCAD `Shape` class. This demonstrates AnchorSCAD's "parametric" tools. Running this code will generate a file named "**`examples_out/anchorcad_SquarePipe_default_example.scad`**," which can also be imported into other Python programs as shown in the "[SquarePipe](https://github.com/owebeeone/anchorscad-core/blob/main/src/anchorscad_models/basic/SquarePipe.py)" class as a reusable shape.
 
 ![AnchorScad example2](assets/quick_start_example2.png?raw=true)
 
@@ -112,9 +112,9 @@ While it is possible to use AnchorSCAD without the [dataclass](https://docs.pyth
 # Use Shape Templates to Create New Shapes
 The `anchorscad` package includes several template files to use as starting points when creating new AnchorSCAD shape modules. These templates contain simple `CompositeShape` classes demonstrating common patterns.
 
-*   **[`template.py`](https://github.com/owebeeone/anchorscad/blob/main/src/anchorscad/template.py)**: The base template, showing a simple `CompositeShape` using a `datatree` `Node` (`box_node`) to build a basic `Box`.
-*   **[`template_with_dt_node.py`](https://github.com/owebeeone/anchorscad/blob/main/src/anchorscad/template_with_dt_node.py)**: Similar to the base template, but explicitly uses `ad.ShapeNode` typing for the `box_node`.
-*   **[`template_with_extrusion.py`](https://github.com/owebeeone/anchorscad/blob/main/src/anchorscad/template_with_extrusion.py)**: Demonstrates creating a shape based on a 2D path built with `ad.PathBuilder` and then extruded using `ad.LinearExtrude`.
+*   **[`template.py`](https://github.com/owebeeone/anchorscad-core/blob/main/src/anchorscad/template.py)**: The base template, showing a simple `CompositeShape` using a `datatree` `Node` (`box_node`) to build a basic `Box`.
+*   **[`template_with_dt_node.py`](https://github.com/owebeeone/anchorscad-core/blob/main/src/anchorscad/template_with_dt_node.py)**: Similar to the base template, but explicitly uses `ad.ShapeNode` typing for the `box_node`.
+*   **[`template_with_extrusion.py`](https://github.com/owebeeone/anchorscad-core/blob/main/src/anchorscad/template_with_extrusion.py)**: Demonstrates creating a shape based on a 2D path built with `ad.PathBuilder` and then extruded using `ad.LinearExtrude`.
 
 When using a template, you should specialize the class name, docstring, fields, and the implementation of the `build()` function for the shape being coded. It makes sense to keep related shapes within the same Python module.
 
