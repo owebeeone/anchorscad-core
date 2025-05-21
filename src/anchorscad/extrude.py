@@ -61,6 +61,8 @@ class CutCausedMultiplePathsUnimplemented(Exception):
 class NameNotFoundException(Exception):
     '''The requested name was not found.'''
 
+class CannotBuildConstructionException(Exception):
+    '''Constructions can only be closed, not built.'''
 
 EPSILON=1e-6
 
@@ -1397,6 +1399,11 @@ class PathBuilderPrimitives(ABC):
     def get_op(self, name) -> Union[OpBase, None]:
         '''Returns the op with the given.'''
         pass
+    
+    @abstractmethod
+    def build(self) -> Path:
+        '''Returns the Path corresponding to this.'''
+        pass
 
     @datatree(frozen=True)
     class _LineTo(OpBase):
@@ -2494,6 +2501,9 @@ class _Construction(PathBuilderPrimitives):
             
     def get_op(self, name) -> OpBase | None:
         return self.pathBuilder.get_op(name)
+    
+    def build(self) -> Path:
+        raise CannotBuildConstructionException("Not allowed to call build() on constructions.")
     
 
 @datatree(provide_override_field=False)

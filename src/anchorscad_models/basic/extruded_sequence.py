@@ -104,6 +104,10 @@ class ExtrudedSequenceBuilder:
         self.items.append(item)
         return self
     
+    def reset(self) -> 'ExtrudedSequenceBuilder':
+        self.items = []
+        return self
+    
     def build(self) -> tuple[SequenceItem, ...]:
         assert len(self.items) > 0, 'No items to build'
         return tuple(self.items)

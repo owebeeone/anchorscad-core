@@ -122,15 +122,15 @@ if __name__ == "__main__":
         #     "--example",
         #     "default",
         # ]
-        sys.argv = [
-            sys.argv[0],
-            "--module",
-            "anchorscad_models.cases.rpi.rpi4",
-            "--shape",
-            "RaspberryPi4Case",
-            "--example",
-            "bottom",
-        ]
+        # sys.argv = [
+        #     sys.argv[0],
+        #     "--module",
+        #     "anchorscad_models.cases.rpi.rpi4",
+        #     "--shape",
+        #     "RaspberryPi4Case",
+        #     "--example",
+        #     "bottom",
+        # ]
         # sys.argv = [
         #     sys.argv[0],
         #     "--module",
@@ -144,19 +144,19 @@ if __name__ == "__main__":
         #     "--material",
         #     "sphere",
         # ]       
-        # sys.argv = [
-        #     sys.argv[0],
-        #     "--module",
-        #     "anchorscad_models.multimaterial.mm_test1",
-        #     "--shape",
-        #     "MultiMaterialTest",
-        #     "--example",
-        #     "default",
-        #     # "--part",
-        #     # "part0",
-        #     # "--material",
-        #     # "mat2",
-        # ]
+        sys.argv = [
+            sys.argv[0],
+            "--module",
+            "anchorscad_models.multimaterial.mm_test1",
+            "--shape",
+            "MultiMaterialTest",
+            "--example",
+            "default",
+            # "--part",
+            # "part0",
+            # "--material",
+            # "mat2",
+        ]
         # sys.argv = [
         #     sys.argv[0],
         #     "--module",

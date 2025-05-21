@@ -1480,12 +1480,16 @@ class Maker(Shape):
             raise IllegalParameterException(
                 'Recieved positional args and kwds when parameter "args" or anchor is alsoprovided.'
             )
-        if anchor:
-            pargs = anchor.pargs
-            kwds = anchor.kwds
-
+            
         alter_pre = None
         alter_post = None
+        
+        if anchor:
+            pargs = anchor.pargs
+            kwds = dict(anchor.kwds)
+            alter_pre = kwds.pop("pre", None)
+            alter_post = kwds.pop("post", None)
+
         if args:
             pargs = args[0]
             kwds = dict(args[1])
