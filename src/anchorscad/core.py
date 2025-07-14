@@ -1129,7 +1129,7 @@ class Shape(ShapeNamer, ShapeMaker):
         return cls.EXAMPLES_EXTENDED[name]
 
     @classmethod
-    def example(cls, name="default"):
+    def example(cls, name="default") -> tuple['Maker', 'Shape']:
         if name == "default":
             example_params = cls.get_default_example_params()
         else:
@@ -1690,7 +1690,10 @@ class Anchors:
     anchors: frozendict
 
     def get(self, name):
-        return self.anchors.get(name)
+        try:
+            return self.anchors.get(name)
+        except Exception:
+            raise
 
 
 @datatree()

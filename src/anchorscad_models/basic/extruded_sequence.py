@@ -132,10 +132,10 @@ class ExtrudedSequence(ad.CompositeShape):
         sequence=ExtrudedSequenceBuilder(fn=16, path_fn=8, use_polyhedrons=False)
             .linear(11, anchor=ad.PathAnchor.anchor('line1', t=0.5), path_xform=ad.scale(1))
             .rotate(r=5, angle=ad.angle(60), anchor=ad.PathAnchor.anchor('line1', t=0.5))
-            .rotate(r=25, angle=ad.angle(30), anchor=ad.PathAnchor.anchor('line1', t=0.5))
+            .rotate(r=25, angle=ad.angle(90), fn=64,anchor=ad.PathAnchor.anchor('spline1', t=0.25))
             .linear(11, anchor=ad.PathAnchor.anchor('line1', t=0.5))
-            .linear(11, anchor=ad.PathAnchor.anchor('spline1', t=0.5))
-            .linear(11, anchor=ad.PathAnchor.anchor('line1', t=0.5))
+            .linear(11, anchor=ad.PathAnchor.anchor('spline1', t=0.25))
+            .linear(11, anchor=ad.PathAnchor.anchor('line1', t=0.75))
             .rotate(r=25, 
                     angle=ad.angle(90), 
                     anchor=ad.PathAnchor.anchor('spline1', t=0.5), 
@@ -199,7 +199,7 @@ class TestExtrusionAnchors(ad.CompositeShape):
 
 # Uncomment the line below to default to writing OpenSCAD files
 # when anchorscad_main is run with no --write or --no-write options.
-MAIN_DEFAULT=ad.ModuleDefault(all=True)
+MAIN_DEFAULT=ad.ModuleDefault(all=2, write_stl_mesh_files=False)
 
 if __name__ == "__main__":
     ad.anchorscad_main()

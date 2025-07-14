@@ -152,8 +152,8 @@ if __name__ == "__main__":
             "MultiMaterialTest",
             "--example",
             "default",
-            # "--part",
-            # "part0",
+            "--part",
+            "part0",
             # "--material",
             # "mat2",
         ]

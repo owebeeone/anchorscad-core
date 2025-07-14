@@ -893,7 +893,7 @@ class RenderResult():
     graph: graph_model.DirectedGraph  # The graph of the rendered shape.
     paths: dict  # A dictionary of Path to list of anchors in the graph.
     material_stats: MaterialStats  # Mapped material stats.
-    parts: Dict[str, Any] # The individual parts of the shape.
+    parts: Dict[tuple[str, str], Any] # The individual parts of the shape.
     model: Any # PythonOpenScad module.
     rendered_shape_mesh: RenderContext = None
     parts_mesh: dict[str, RenderContext] = field(default_factory=dict)
@@ -912,7 +912,7 @@ class RenderResult():
             self.parts_mesh[name] = obj.renderObj(mesh_renderer)
 
     
-def render(shape, 
+def render(shape: core.Shape, 
            initial_frame: l.GMatrix=None, 
            initial_attrs: core.ModelAttributes=None) -> RenderResult:
     '''Renders a shape and returns a RenderResult.
