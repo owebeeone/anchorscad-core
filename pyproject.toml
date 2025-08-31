@@ -41,6 +41,7 @@ dependencies = [
     "numpy",
     "to_3mf",
     "matplotlib",
+    "pygit2",
 ]
 
 [project.urls]
