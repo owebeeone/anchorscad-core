@@ -115,20 +115,25 @@ def main():
     
     example = RunnerModuleStatus(
         'mod_name',
-        (RunnerShapeResults('shape1', 
-            (RunnerExampleResults('ex_name11', 'sf', 'gf', 'pf', 'stl',
-                parts_model_files=[
-                    {'part1': RunnerExamplePartResults('part1', 'scad1', 'stl1', 'f3mf1', 'png1', 'oe1', 'oo1')},
-                    {'part2': RunnerExamplePartResults('part2', 'scad2', 'stl2', 'f3mf2', 'png2', 'oe2', 'oo2')}])),
-             RunnerExampleResults('ex_name12', 'sf', 'gf', 'pf', 'stl',
-                parts_model_files=[
-                    {'part1': RunnerExamplePartResults('part1', 'scad1', 'stl1', 'f3mf1', 'png1', 'oe1', 'oo1')},
-                    {'part2': RunnerExamplePartResults('part2', 'scad2', 'stl2', 'f3mf2', 'png2', 'oe2', 'oo2')}])),
+        (RunnerShapeResults('shape1',               
+            0,
+            (RunnerExampleResults('ex_name11', 'sf', 'gf', 0, 'pf', 0, 'stl',
+                parts_model_files={
+                    'part1': RunnerExamplePartResults('part1', 'scad1', 'stl1', 'f3mf1', 'png1', 'oe1', 'oo1'),
+                    'part2': RunnerExamplePartResults('part2', 'scad2', 'stl2', 'f3mf2', 'png2', 'oe2', 'oo2')}),
+             RunnerExampleResults('ex_name12', 'sf', 'gf', 0, 'pf', 0, 'stl',
+                parts_model_files={
+                    'part1': RunnerExamplePartResults('part1', 'scad1', 'stl1', 'f3mf1', 'png1', 'oe1', 'oo1'),
+                    'part2': RunnerExamplePartResults('part2', 'scad2', 'stl2', 'f3mf2', 'png2', 'oe2', 'oo2')}))),
         RunnerShapeResults('shape2', 
-            (RunnerExampleResults('ex_name21', 'sf', 'gf', 'pf', 'stl'),
-             RunnerExampleResults('ex_name22', 'sf', 'gf', 'pf', 'stl'))),
+            0,
+            (RunnerExampleResults('ex_name21', 'sf', 'gf', 0, 'pf', 0, 'stl'),
+             RunnerExampleResults('ex_name22', 'sf', 'gf', 0, 'pf', 0, 'stl'))),
         ),
-    examples_with_error_output=[]
+        examples_with_error_output=[],
+        exit_status=0,
+        incomplete=False,
+        module_load_error=[],
     )
 
     s = example.to_json(indent=4)
