@@ -106,7 +106,7 @@ def get_git_info(file_path: str) -> Optional[SourceRepo]:
 
 if __name__ == '__main__':
     current_directory = os.getcwd()
-    test_file_name = 'anchorscad-core/src/anchorscad/runner/anchorscad_runner.py'
+    test_file_name = 'anchorscad-core/src/anchorscad_models/components/terminal_blocks/terminal_kf301.py'
     test_file_path = os.path.join(current_directory, test_file_name)
 
     with open(test_file_path, 'w') as f:
@@ -129,24 +129,20 @@ if __name__ == '__main__':
         print(f"URL to line 15:    {git_data.get_url(line_number=15)}")
         print(f"Raw content URL:   {git_data.get_raw_url()}")
 
-        if requests:
-            print("\n--- Fetching Remote Content ---")
-            # Note: This will only succeed if the commit has actually been pushed.
-            if git_data.is_on_origin:
-                content = git_data.fetch_contents()
-                if content:
-                    print(f"Successfully fetched content. First 50 chars:\n'{content[:50].strip()}...'")
-                else:
-                    print("Failed to fetch content (the file might be new or URL is incorrect).")
-            else:
-                print("Skipping content fetch: commit is not on origin.")
-        else:
-            print("\nInstall 'requests' (`pip install requests`) to test fetching remote content.")
+        # if requests:
+        #     print("\n--- Fetching Remote Content ---")
+        #     # Note: This will only succeed if the commit has actually been pushed.
+        #     if git_data.is_on_origin:
+        #         content = git_data.fetch_contents()
+        #         if content:
+        #             print(f"Successfully fetched content. First 50 chars:\n'{content[:50].strip()}...'")
+        #         else:
+        #             print("Failed to fetch content (the file might be new or URL is incorrect).")
+        #     else:
+        #         print("Skipping content fetch: commit is not on origin.")
     else:
         print("--- No Git Information Found ---")
         print("This script is likely not running from within a Git repository,")
         print("or the repository does not have a remote 'origin' configured.")
 
     os.remove(test_file_path)
-
-

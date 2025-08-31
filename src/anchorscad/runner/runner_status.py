@@ -157,6 +157,7 @@ class RunnerShapeResults(object):
     class_name: str
     examples_with_error_output_count: int=0
     example_results: list[RunnerExampleResults]=field(default_factory=list)
+    line_number: Optional[int]=None
 
 
 @dataclass_json

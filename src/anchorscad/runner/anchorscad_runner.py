@@ -5,10 +5,12 @@ Created on 15 Jan 2022
 '''
 
 from dataclasses import dataclass, field
+import shutil
 
 from anchorscad.svg_renderer import HtmlRenderer
 import anchorscad.core as core
 from subprocess import Popen
+from anchorscad.runner.repo_inspect import get_git_info
 import datatrees as datatrees
 
 import sys
@@ -147,15 +149,44 @@ class ExampleRunner:
     old_stderr: object = None
     old_stdout: object = None
     openscad_properties: OpenscadProperties = field(init=False)
+    source_repo: rs.SourceRepo = None
+    attempted_source_repo: bool = False
+    copied_source_filename: str = None
 
     def __post_init__(self):
         self.module_dir = os.path.sep.join(self.module_name.split('.'))
         self.openscad_properties = openscad_exe_properties()
+        
+    def set_source_repo(self, clz):
+        if self.attempted_source_repo:
+            return
+        self.attempted_source_repo = True
+        source_file = inspect.getfile(clz)
+        self.source_repo = get_git_info(source_file)
+        if not self.source_repo or not self.source_repo.is_on_origin:
+            # Not on origin, so we need to copy the file to the output directory.
+            file_name = os.path.basename(source_file)
+            # The pathname in the status.json file.
+            out_file_name = os.path.join(           
+                'output',
+                self.module_dir,
+                file_name)
+            # The pathname to the output directory.
+            self.copied_source_filename = out_file_name.replace('\\', '/')
+            path_to_copy = os.path.join( 
+                self.out_dir,
+                out_file_name)
+            try:
+                shutil.copy2(source_file, path_to_copy)
+            except FileNotFoundError as e:
+                print(f"Error copying source file {source_file} to {self.copied_source_filename}: {e}")
 
     def get_example_record(self, clz, base_example_name) -> rs.RunnerExampleResults:
+        self.set_source_repo(clz)  # Set this up only for modules that have shapes.
         results = self.runner_results.get(clz.__name__, None)
         if not results:
-            results = rs.RunnerShapeResults(class_name=clz.__name__)
+            line_number = inspect.getsourcelines(clz)[1]
+            results = rs.RunnerShapeResults(class_name=clz.__name__, line_number=line_number)
             self.runner_results[clz.__name__] = results
 
         key = (clz.__name__, base_example_name)
@@ -407,6 +438,8 @@ class ExampleRunner:
             module_name=self.module_name,
             shape_results=tuple(self.runner_results.values()),
             examples_with_error_output=self.examples_with_errors,
+            source_repo=self.source_repo,
+            source_file=self.copied_source_filename,
         )
         return self.write_runner_module_status_file(runner_status)
 
@@ -745,13 +778,14 @@ def run():
     # For debugging.
     # if not ENVIRON_NAME in runner.env:
     #     runner = AnchorScadRunner(['src/anchorscad/models/components', 'anchorscad_models.components.switch_case'])
-    #     # args = ['--no_warn_deprecated_anchors_use',
-    #     #         '--gen-stl',
-    #     #         '--gen-3mf',
-    #     #         'src/anchorscad/models/components/terminal_blocks/terminal_kf301.py',
-    #     #         'anchorscad_models.components.terminal_blocks.terminal_kf301']
-    #     # runner = AnchorScadRunner(args)
-    #     # runner.env[ENVIRON_NAME] = args[3]
+    # args = ['--no_warn_deprecated_anchors_use',
+    #         '--gen-stl',
+    #         '--gen-3mf',
+    #         'anchorscad-core/src/anchorscad/models/components/terminal_blocks/terminal_kf301.py',
+    #         'anchorscad_models.components.terminal_blocks.terminal_kf301']
+    # runner = AnchorScadRunner(args)
+    # runner.env[ENVIRON_NAME] = args[3]
+    
     runner.run()
 
 
