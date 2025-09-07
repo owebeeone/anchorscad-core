@@ -114,7 +114,10 @@ class RunnerExamplePartResults(object):
     f3mf_file: Optional[str]=None # The 3MF file (possibly multi-part/material).
     png_file: Optional[str]=None # The PNG image file.
     openscad_err_file: Optional[str]=None # The OpenSCAD stderr file.
+    openscad_err_file_size: Optional[int]=None # Size of the error file.
     openscad_out_file: Optional[str]=None # The OpenSCAD stdout file.
+    openscad_out_file_size: Optional[int]=None # Size of the output file.
+    openscad_exit_status: Optional[int]=None # The exit status of the OpenSCAD command.
 
 
 @dataclass_json
@@ -137,7 +140,10 @@ class RunnerExampleResults(object):
     f3mf_file: Optional[str]=None # The 3MF file (possibly multi-part/material).
     png_file: Optional[str]=None # The PNG image file.
     openscad_err_file: Optional[str]=None # The OpenSCAD stderr file.
+    openscad_err_file_size: Optional[int]=None # Size of the error file.
     openscad_out_file: Optional[str]=None # The OpenSCAD stdout file.
+    openscad_out_file_size: Optional[int]=None # Size of the output file.
+    openscad_exit_status: Optional[int]=None # The exit status of the OpenSCAD command.
     graph_file: Optional[str]=None # The graphviz .dot file for the model.
     graph_svg_dot_file: Optional[str]=None # The graphviz .svg file for the model.
     graph_svg_file: Optional[str]=None

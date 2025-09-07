@@ -813,6 +813,7 @@ class Path():
     name_map: Dict[str, OpBase]  # frozendict
     path_modifier: PathModifier=dtfield(default=None)
     constructions: List['Construction']=dtfield(default=None)
+    reverse: bool=False
 
     def get_node(self, name) -> OpBase | None:
         return self.name_map.get(name, None)
@@ -952,7 +953,12 @@ class Path():
         map_builder = map_builder_type() if map_builder_type else NullMapBuilder()
         for op in self.ops:
             op.populate(path_builder, start_indexes, map_builder, meta_data)
-        return (np.array(path_builder), start_indexes, map_builder)
+        points = np.array(path_builder)
+        if self.reverse:
+            new_start_indexes = [len(points) - i for i in start_indexes[::-1]]
+            start_indexes = [0, *new_start_indexes[:-1]]
+            points = points[::-1]
+        return (points, start_indexes, map_builder)
     
     def points(self, meta_data):
         points, _, _ = self.build(meta_data)
@@ -1530,8 +1536,8 @@ class PathBuilderPrimitives(ABC):
             return self.point
         
         def populate(self, path_builder, start_indexes, map_builder, meta_data):
-            path_builder.append(self.point)
             start_indexes.append(len(path_builder))
+            path_builder.append(self.point)
             map_builder.append(self, self.point, 1, 0)
             
         def direction(self, t):
@@ -2519,6 +2525,7 @@ class PathBuilder(PathBuilderPrimitives):
     
     multi: bool=False
     path_modifier: PathModifier=None
+    reverse: bool=False
     
     def is_multi_path(self) -> bool:
         '''Returns True if the builder allows multiple paths.'''
@@ -2574,7 +2581,8 @@ class PathBuilder(PathBuilderPrimitives):
             tuple(self.ops), 
             frozendict(self.name_map), 
             path_modifier=self.get_path_modifier(),
-            constructions=tuple(self.constructions))
+            constructions=tuple(self.constructions),
+            reverse=self.reverse)
     
 
 class ExtrudedShape(core.Shape):
@@ -2874,7 +2882,7 @@ class LinearExtrude(ExtrudedShape):
     _SCALE=2
     
     EXAMPLE_SHAPE_ARGS=core.args(
-        PathBuilder()
+        PathBuilder(reverse=True)
             .move([0, 0])
             .line([100 * _SCALE, 0], 'linear')
             .spline([[150 * _SCALE, 100 * _SCALE], [20 * _SCALE, 100 * _SCALE]],
@@ -2916,7 +2924,7 @@ class LinearExtrude(ExtrudedShape):
     EXAMPLES_EXTENDED={
         'example2': core.ExampleParams(
             shape_args=core.args(
-                PathBuilder()
+                PathBuilder(reverse=True)
                     .move([0, 0])
                     .line([50 * _SCALE, 0], 'linear1')
                     .line([50 * _SCALE, 50 * _SCALE], 'linear2')
@@ -2943,7 +2951,7 @@ class LinearExtrude(ExtrudedShape):
                 fn=80,
                 #slices=20,
                 #twist=90,
-                use_polyhedrons=False
+                #use_polyhedrons=False
                 ),
             anchors=(
                 core.surface_args('linear1', 0, 0),
@@ -2966,7 +2974,7 @@ class LinearExtrude(ExtrudedShape):
                     .build(),
                 h=50,
                 fn=80,
-                use_polyhedrons=False
+                #use_polyhedrons=False
                 ),
             anchors=(
                 core.surface_args('linear1', 0, 0),
@@ -2992,7 +3000,7 @@ class LinearExtrude(ExtrudedShape):
                 fn=64,
                 #slices=20,
                 #twist=90,
-                use_polyhedrons=False
+                #use_polyhedrons=False
                 ),
             anchors=(
                 core.surface_args('centre_of', 'curve1', 0, normal_segment='linear3'),
@@ -3012,7 +3020,7 @@ class LinearExtrude(ExtrudedShape):
                     .build(),
                 h=40 * _SCALE,
                 fn=80,
-                use_polyhedrons=False
+                #use_polyhedrons=False
                 ),
             anchors=(
                 core.surface_args('linear1', 0.5, 0),
@@ -3262,12 +3270,12 @@ class RotateExtrude(ExtrudedShape):
     fa: float=None
     fs: float=None
     use_polyhedrons: bool=core.dtfield(
-        None, doc='Use polyhedrons instead of rotate_extrude.')
+        True, doc='Use polyhedrons instead of rotate_extrude.')
 
     _SCALE=1.0
     
     EXAMPLE_SHAPE_ARGS=core.args(
-        PathBuilder()
+        PathBuilder(reverse=True)
             .move([0, 0])
             .line([110 * _SCALE, 0], 'linear')
             .arc_tangent_point([10 * _SCALE, 100 * _SCALE], name='curve', angle=120)
@@ -3325,14 +3333,14 @@ class RotateExtrude(ExtrudedShape):
                 core.surface_args('curve', 1),)),
         'example4': core.ExampleParams(
             shape_args=core.args(
-                PathBuilder()
+                PathBuilder(reverse=True)
                     .move([_SCALE * 50, 0])
                     .qspline([(100 * _SCALE, 100 * _SCALE), (0, _SCALE * 50)], name='curve')
                     .line([_SCALE * 50, 0], 'linear1')
                     .build(),
                 angle=120,
                 fn=80,
-                use_polyhedrons=False
+                #use_polyhedrons=False
                 ),
             anchors=(
                 core.surface_args('linear1', 0.5, 0),
@@ -3356,7 +3364,7 @@ class RotateExtrude(ExtrudedShape):
                 )),
         'example7': core.ExampleParams(
             shape_args=core.args(
-                PathBuilder()
+                PathBuilder(reverse=True)
                     .move([_SCALE * 50, 0])
                     .spline([
                         (100 * _SCALE, 100 * _SCALE), 
@@ -3366,7 +3374,7 @@ class RotateExtrude(ExtrudedShape):
                     .build(),
                 angle=120,
                 fn=80,
-                use_polyhedrons=False
+                #use_polyhedrons=False
                 ),
             anchors=(
                 core.surface_args('linear1', 0.5, 0),
@@ -3390,7 +3398,7 @@ class RotateExtrude(ExtrudedShape):
                 )),
         'arc_azimuth': core.ExampleParams(
             shape_args=core.args(
-                PathBuilder()
+                PathBuilder(reverse=True)
                     .move([0, _SCALE * -25])
                     .line([_SCALE * 25, _SCALE * -25], 'linear1')
                     .arc_tangent_point([_SCALE * 25, _SCALE * -50], name='curve1')
@@ -3401,7 +3409,7 @@ class RotateExtrude(ExtrudedShape):
                     .build(),
                 angle=120,
                 fn=80,
-                use_polyhedrons=False
+                #use_polyhedrons=False
                 ),
             anchors=(
                 core.surface_args('linear1', 0.5, 0),
@@ -3412,7 +3420,7 @@ class RotateExtrude(ExtrudedShape):
                 )),
         'arc_azimuth2': core.ExampleParams(
             shape_args=core.args(
-                PathBuilder()
+                PathBuilder(reverse=True)
                     .move([0, _SCALE * 25])
                     .line([_SCALE * 25, _SCALE * 25], 'linear1')
                     .arc_tangent_point([_SCALE * 25, _SCALE * 50], name='curve1')
@@ -3423,7 +3431,7 @@ class RotateExtrude(ExtrudedShape):
                     .build(),
                 angle=120,
                 fn=80,
-                use_polyhedrons=False
+                #use_polyhedrons=False
                 ),
             anchors=(
                 core.surface_args('linear1', 0.5, 0),
@@ -3436,7 +3444,9 @@ class RotateExtrude(ExtrudedShape):
             description='An example of using the offset modifier with a Path containing a '
                         'variety of primitive segments.',
             shape_args=core.args(
-                PathBuilder(path_modifier=PathModifier(trim_negx=True).round().add_offset(_SCALE * 8))
+                PathBuilder(
+                    path_modifier=PathModifier(trim_negx=True).round().add_offset(_SCALE * 8),
+                    reverse=True)
                     .move([5 * _SCALE, _SCALE * -25])
                     .line([_SCALE * 25, _SCALE * -25], 'linear1')
                     .arc_tangent_point([_SCALE * 25, _SCALE * -50], name='curve1')
@@ -3449,7 +3459,7 @@ class RotateExtrude(ExtrudedShape):
                     .build(),
                 angle=120,
                 fn=80,
-                use_polyhedrons=False
+                #use_polyhedrons=False
                 ),
             anchors=(
                 core.surface_args('linear1', 0.5, 0),

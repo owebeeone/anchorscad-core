@@ -266,18 +266,26 @@ class ExampleRunner:
         )
         runner_example.openscad_out_file = out_rel_filename
 
-        if not self.run_openscad(
+        wait_result = self.run_openscad(
             stl_full_path,
             f3mf_full_path,
             png_full_path,
             scad_full_path,
             out_full_path,
             err_full_path,
-        ):
+        )
+        if wait_result != 0:
             # Command failed.
-            runner_example.png_file = None
-            runner_example.stl_file = None
-            runner_example.f3mf_file = None
+            if not os.path.exists(runner_example.png_file):
+                runner_example.png_file = None
+            if not os.path.exists(runner_example.stl_file):
+                runner_example.stl_file = None
+            if not os.path.exists(runner_example.f3mf_file):
+                runner_example.f3mf_file = None
+        
+        runner_example.openscad_err_file_size = os.stat(err_full_path).st_size
+        runner_example.openscad_out_file_size = os.stat(out_full_path).st_size
+        runner_example.openscad_exit_status = wait_result
 
     def parts_writer(self, parts: Dict[str, Any], clz, example_name, base_example_name):
         for part_name, obj in parts.items():
@@ -293,7 +301,15 @@ class ExampleRunner:
         )
         with open(out_file, 'w') as fout, open(err_file, 'w') as ferr:
             p = Popen(cmd, stdout=fout, stderr=ferr)
-        return p.wait() == 0
+        wait_result = p.wait()
+        result = wait_result == 0
+        
+        if not result:
+            with open(err_file, 'a') as ferr:
+                ferr.write(f'\nCommand failed: {[str(a) for a in cmd]}\n')
+                ferr.write(f'Exit code: {wait_result}\n')
+        
+        return wait_result
 
     def graph_file_writer(self, graph, clz, example_name, base_example_name):
         rel_graph_filename, runner_example, full_graph_path = self.gen_filenames_and_runner(

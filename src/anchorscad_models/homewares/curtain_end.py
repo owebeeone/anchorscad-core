@@ -22,7 +22,7 @@ class CurtainEndCapPath:
     irel_len: float=ad.dtfield(0.4, doc='Interference ridge spline relative length.')
     
     def build(self) -> ad.Path:
-        builder = ad.PathBuilder()
+        builder = ad.PathBuilder(reverse=False)
         
         end_ridge = self.w - (self.iw + self.io)
         assert end_ridge >= self.tb, f"Interference ridge too wide by {self.tb - end_ridge}."
@@ -70,8 +70,7 @@ class CurtainEndCap(ad.CompositeShape):
     # Injected parameter "path" from RotateExtrude will pick up the self_default path. 
     rotate_extrude_node: ad.Node=ad.ShapeNode(ad.RotateExtrude)
     
-    # Try a stupidly high number of facets to get a smoother curve.
-    fn: int=ad.dtfield(256, doc='The number of facets for the rotate_extrude.')
+    fn: int=ad.dtfield(128, doc='The number of facets for the rotate_extrude.')
 
     EXAMPLE_SHAPE_ARGS=ad.args()
     EXAMPLE_ANCHORS=()

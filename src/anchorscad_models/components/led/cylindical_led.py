@@ -22,7 +22,7 @@ class CylindricalLedPathBuilder:
     def build(self) -> ad.Path:
         
         h_body = self.h - self.h_base - self.r
-        builder = (ad.PathBuilder()
+        builder = (ad.PathBuilder(reverse=True)
                 .move((0, 0))
                 .line((self.r_base, 0), 'base')
                 .line((self.r_base, self.h_base), 'base-side')

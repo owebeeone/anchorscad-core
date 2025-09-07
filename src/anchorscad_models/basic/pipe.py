@@ -30,7 +30,7 @@ class Pie(ad.CompositeShape):
         
         maker = shape.cage('pie_cage').at()
         
-        path = (ad.PathBuilder()
+        path = (ad.PathBuilder(reverse=True)
                 .move((0, 0))
                 .line((self.r, 0), 'pie_base')
                 .line((self.r, self.h), 'pie_outer')
