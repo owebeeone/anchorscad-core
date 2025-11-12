@@ -1013,7 +1013,7 @@ class Path():
                 # AnchorSCAD Paths may be incorrectly ordered. Manifold3D requires a correct order
                 # otherise it will return an empty cross section since it is deemed to be a hole.
                 # TODO: Fix AnchorSCAD to handle multiple paths correctly.
-                cs = m3d.CrossSection([points[0][::-1]])
+                cs = m3d.CrossSection([points[::-1]])
                 assert not cs.is_empty(), 'Empty cross section should not happen.'
             
             num_segments = meta_data.fn \
@@ -1531,6 +1531,8 @@ class PathBuilderPrimitives(ABC):
             self.point.setflags(write=False)
             if self.dir is not None:
                 self.dir.setflags(write=False)
+            if isinstance(self.prev_op, PathBuilderPrimitives._MoveTo):
+                raise ValueError('Move to cannot be preceded by a move to.')
             
         def lastPosition(self):
             return self.point
@@ -3063,8 +3065,10 @@ class LinearExtrude(ExtrudedShape):
         return metadata
 
     def render_as_linear_extrude(self, renderer):
-        polygon = renderer.model.Polygon(*self.path.cleaned_polygons(
-            self.get_path_attributes(renderer)))
+        cleaned_polygons = self.path.cleaned_polygons(
+            self.get_path_attributes(renderer))
+        polygon = renderer.model.Polygon(*cleaned_polygons)
+
         params = core.fill_params(
             self, 
             renderer, 

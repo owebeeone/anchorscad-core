@@ -64,7 +64,7 @@ class DoveTail(ad.CompositeShape):
         mid_offset = 0.5 * actual_dt_width
         
         # Makes a single tail path and reuse.
-        dt_path = (ad.PathBuilder().move([0, 0])
+        dt_path: ad.Path = (ad.PathBuilder().move([0, 0])
                    .line((-offseta, 0), ('front', 'right'))
                    .line((offseta - mid_offset, depth), ('side', 'right'))
                    .line((-mid_offset, depth), ('back', 'right'))
@@ -73,6 +73,13 @@ class DoveTail(ad.CompositeShape):
                    .line((-actual_dt_width, 0), ('front', 'left'))
                    .build()
                    )
+        # def add_tail_path(pathbuilder: ad.PathBuilder, offsetx: float, i: int):
+        #         pathbuilder.line((-offseta + offsetx, 0), ('front', 'right', i)) \
+        #            .line((offseta - mid_offset + offsetx, depth), ('side', 'right', i)) \
+        #            .line((-mid_offset + offsetx, depth), ('back', 'right', i)) \
+        #            .line((-offseta - mid_offset + offsetx, depth), ('back', 'left', i)) \
+        #            .line((-actual_dt_width + offseta + offsetx, 0), ('side', 'left', i)) \
+        #            .line((-actual_dt_width + offsetx, 0), ('front', 'left', i))
                     
         pathbuilder = ad.PathBuilder().move([0, 0])
         dw_trans = ad.translate([-actual_dt_width, 0, 0])
@@ -81,8 +88,9 @@ class DoveTail(ad.CompositeShape):
         half_count = count // 2
         
         for i in range(half_count - 1, -1, -1):
+            #add_tail_path(pathbuilder, -actual_dt_width * i, i)
             pathbuilder = dt_path.transform_to_builder(
-                dw_current_trans, pathbuilder, (i,))
+                dw_current_trans, pathbuilder, (i,), skip_first_move=True)
             dw_current_trans = dw_current_trans * dw_trans
 
         
@@ -106,8 +114,9 @@ class DoveTail(ad.CompositeShape):
         
         dw_current_trans = dw_current_trans.I
         for i in range(count - 1, half_count - 1, -1):
+            #add_tail_path(pathbuilder, -actual_dt_width * (half_count - i), i)
             pathbuilder = dt_path.transform_to_builder(
-                dw_current_trans, pathbuilder, (i,))
+                dw_current_trans, pathbuilder, (i,), skip_first_move=True)
             dw_current_trans = dw_current_trans * dw_trans
 
         path = pathbuilder.build()
@@ -119,6 +128,10 @@ class DoveTail(ad.CompositeShape):
                      'face_centre', 1)
         
         return maker
+    
+    @ad.anchor('Anchor centre of the dovetail.')
+    def centre(self,) -> ad.GMatrix:
+        return self.at('dovetail_cage', 'centre')
         
 
 MAIN_DEFAULT=ad.ModuleDefault(True, write_path_files=True)
