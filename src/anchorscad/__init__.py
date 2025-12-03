@@ -7,5 +7,6 @@ from anchorscad_lib.linear import *  # Direct import from source
 from .renderer import *
 from .path_ops import *
 from .path_utils import *
+from .svg_path import *
 
 __path__ = __import__('pkgutil').extend_path(__path__, __name__)

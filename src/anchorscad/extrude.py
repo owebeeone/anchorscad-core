@@ -684,7 +684,7 @@ class Segment:
 
 def clean_polygons(points: np.ndarray, colinear_remove: bool, tolerance=EPSILON) -> np.ndarray:
     '''Returns a cleaned polygon. Removes colinear segments.'''
-    if colinear_remove:
+    if colinear_remove and len(points) > 2:
         points = remove_colinear_points(points, tolerance)
     
     last_len = 0
@@ -973,9 +973,9 @@ class Path():
         start_ranges = []
         # Close paths.
         for i in range(len(start_indexes)):
-            start_point = start_indexes[i] - 1
+            start_point = start_indexes[i]
             if i + 1 < len(start_indexes):
-                end_point = start_indexes[i + 1] - 2
+                end_point = start_indexes[i + 1] - 1
             else:
                 end_point = len(points) - 1
             extra_point = ()
@@ -1128,7 +1128,7 @@ class Path():
         if include_constructions and self.constructions:
             for c in self.constructions:
                 with builder.construction() as cb:
-                    cb.add_transformed(c, m, suffix, appender, offset, metadata)
+                    cb.add_transformed(c, m, cb, suffix=suffix, appender=appender)
                 
         return builder
             
@@ -2503,7 +2503,7 @@ class _Construction(PathBuilderPrimitives):
         for op in construction.ops:
             self.add_op_with_params(
                 op.transform(m), 
-                appender(op.name, suffix), 
+                appender(op.name, suffix) if appender else op.name, 
                 path_modifier=builder.get_path_modifier(),
                 trace=op.trace)
             
