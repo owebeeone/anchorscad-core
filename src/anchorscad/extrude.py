@@ -413,7 +413,7 @@ class OpBase(ABC):
     
     def _as_non_defaults_dict(self):
         return dict((k, getattr(self, k)) 
-                    for k in self.__annotations__.keys() 
+                    for k in core.annotation_keys(self) 
                         if getattr(self, k) is not None and k != 'prev_op')
         
     def is_move(self):
