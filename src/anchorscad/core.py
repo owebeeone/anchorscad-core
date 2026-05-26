@@ -670,70 +670,70 @@ class NamedShapeBase(object):
     name: Hashable
     attributes: ModelAttributes = None
 
-    def _as_non_defaults_dict(self):
+    def _as_non_defaults_dict(self) -> Dict[str, object]:
         return dict(
             (k, getattr(self, k))
             for k in self.__annotations__.keys()
             if getattr(self, k) is not None
         )
 
-    def _with(self, **kwds):
+    def _with(self, **kwds) -> 'NamedShapeBase':
         return replace(self, **kwds)  # datatree replace
 
-    def with_attributes(self, attributes: ModelAttributes):
+    def with_attributes(self, attributes: ModelAttributes) -> 'NamedShapeBase':
         return self.__class__(**self._with("attributes", attributes))
 
-    def get_attributes_or_default(self):
+    def get_attributes_or_default(self) -> ModelAttributes:
         attributes = self.attributes
         if not attributes:
             attributes = EMPTY_ATTRS
         return attributes
 
-    def colour(self, *colour_args, **colour_kwds):
+    def colour(self, *colour_args, **colour_kwds) -> 'NamedShapeBase':
         return self._with(
             attributes=self.get_attributes_or_default().with_colour(*colour_args, **colour_kwds)
         )
 
-    def fa(self, fa: float):
+    def fa(self, fa: float) -> 'NamedShapeBase':
         return self._with(attributes=self.get_attributes_or_default().with_fa(fa))
 
-    def fs(self, fs: float):
+    def fs(self, fs: float) -> 'NamedShapeBase':
         return self._with(attributes=self.get_attributes_or_default().with_fs(fs))
 
-    def fn(self, fn: int):
+    def fn(self, fn: int) -> 'NamedShapeBase':
         return self._with(attributes=self.get_attributes_or_default().with_fn(fn))
 
-    def segment_lines(self, segment_lines: bool):
+    def segment_lines(self, segment_lines: bool) -> 'NamedShapeBase':
         return self._with(
             attributes=self.get_attributes_or_default().with_segment_lines(segment_lines)
         )
 
-    def disable(self, disable: bool):
+    def disable(self, disable: bool) -> 'NamedShapeBase':
         return self._with(attributes=self.get_attributes_or_default().with_disable(disable))
 
-    def show_only(self, show_only: bool):
+    def show_only(self, show_only: bool) -> 'NamedShapeBase':
         return self._with("attributes", self.get_attributes_or_default().with_show_only(show_only))
 
-    def debug(self, debug: bool):
+    def debug(self, debug: bool) -> 'NamedShapeBase':
         return self._with(attributes=self.get_attributes_or_default().with_debug(debug))
 
-    def transparent(self, transparent: bool):
+    def transparent(self, transparent: bool) -> 'NamedShapeBase':
         return self._with(attributes=self.get_attributes_or_default().with_transparent(transparent))
 
-    def use_polyhedrons(self, as_polyhedrons: bool):
+    def use_polyhedrons(self, as_polyhedrons: bool) -> 'NamedShapeBase':
         return self._with(
             attributes=self.get_attributes_or_default().with_use_polyhedrons(as_polyhedrons)
         )
 
-    def material(self, material: Material):
+    def material(self, material: Material) -> 'NamedShapeBase':
         return self._with(attributes=self.get_attributes_or_default().with_material(material))
 
-    def material_map(self, material_map: MaterialMap):
+    def material_map(self, material_map: MaterialMap) -> 'NamedShapeBase':
         return self._with(
             attributes=self.get_attributes_or_default().with_material_map(material_map)
         )
 
-    def part(self, part: Part):
+    def part(self, part: Part) -> 'NamedShapeBase':
         return self._with(attributes=self.get_attributes_or_default().with_part(part))
 
 
@@ -1577,6 +1577,11 @@ class Maker(Shape):
             raise AnchorSpecifierNotFoundException(
                 f"name={name!r} is not an anchor of the reference shape or a named shape. "
                 f"Available names are {self.anchor_names()}."
+            )
+            
+        if not args:
+            raise IncorrectAnchorArgs(
+                f"No args provided for {name!r} on {self.reference_shape.shape().name()!r}"
             )
 
         return entry.reference_frame() * entry.shape().at(*args, **kwds)

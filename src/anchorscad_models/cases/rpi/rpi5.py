@@ -42,6 +42,21 @@ class RaspberryPi5Case(RaspberryPiCase):
         'outline', ('rj45', 'outer'), 'face_edge', 1, 0, 0)
     BOUND_LINES = (USBA2_A2, USBA3_A1, ETH_A1, USBA2_A3)
     
+
+
+@shape
+@datatree(chain_post_init=True)
+class RaspberryPi5WithSSD(RaspberryPi5Case):
+    '''A Raspberry Pi 5 Case with a SSD.'''
+    inner_size_delta: tuple=(3, 2, 32)
+    inner_offset: tuple=(-1.5, 1, 4.5)
+    outline_model_node: Node=ShapeNode(RaspberryPi5Outline)
+    base_mount_screw_hole: bool=True
+    
+    EXAMPLE_ANCHORS=(surface_args(('support', 0), 'top'), surface_args(('support', 0), 'base'),)
+    
+    
+    
 MAIN_DEFAULT=ModuleDefault(all=True)
 
 if __name__ == "__main__":

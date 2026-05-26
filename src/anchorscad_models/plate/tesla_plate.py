@@ -46,8 +46,7 @@ class TeslaLogo(ad.CompositeShape):
     
     def size(self) -> tuple[float, float, float]:
         extents = np.array(self.path.extents())
-        return extents[1] - extents[0]
-        
+        return extents[1] - extents[0]       
     
     
 @ad.shape
@@ -75,7 +74,37 @@ class TeslaPlate(ad.CompositeShape):
         logo_maker = self.logo.solid('logo').material(ad.Material("logo")).colour("red").at()
         maker.add_at(logo_maker, 'face_centre', 'top', post=ad.ROTX_90)
         return maker
+
+
+@ad.shape
+@ad.datatree
+class TeslaFlatPlate(ad.CompositeShape):
+    """
+    A shape that imports a Tesla logo and extrudes it.
+    """
+    logo_h: float = ad.dtfield(0.4, doc='Height of the logo')
+    logo_node: ad.Node[TeslaLogo] = ad.ShapeNode(TeslaLogo, prefix='logo_')
+    logo: TeslaLogo = ad.dtfield(self_default=lambda s: s.logo_node())
+    logo_size: tuple[float, float, float] = ad.dtfield(
+        self_default=lambda s: s.logo.size(), doc='The size of the logo')
+    h: float = ad.dtfield(1.5, doc='Height of the shape')
+    bsb_bevel_radius: float = ad.dtfield(3, doc='The bevel radius of the box side bevels')
+    bsb_size: tuple[float, float, float] = ad.dtfield(
+        self_default=lambda s: (
+            s.logo_size[0] + s.bsb_bevel_radius, 
+            s.logo_size[1] + s.bsb_bevel_radius, 
+            s.h), doc='The size of the plate')
+    box_side_bevels_node: ad.Node[BoxSideBevels] = ad.ShapeNode(BoxSideBevels, prefix='bsb_')
     
+    def build(self) -> ad.Maker:
+        bsb = self.box_side_bevels_node()
+        maker = bsb.solid('plate').material(ad.Material("plate")).colour("darkred").at('face_centre', 'top')
+        logo_maker = self.logo.solid('logo').material(ad.Material("logo", priority=7)).colour("silver").at(
+            ('tesla', 'centre_rhs'), 0, rh=1, post=ad.tranY(-0.01))
+        maker.add_at(logo_maker, 'face_centre', 'top', post=ad.ROTX_90)
+        return maker
+    
+
 # Uncomment the line below to default to writing OpenSCAD files
 # when anchorscad_main is run with no --write or --no-write options.
 MAIN_DEFAULT = ad.ModuleDefault(all=True)
