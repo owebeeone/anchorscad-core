@@ -34,6 +34,12 @@ def _field_assign(obj, name, value):
     builtins.object.__setattr__(obj, name, value)
 
 
+def annotation_keys(obj: Union[type, object]):
+    """Field names from class annotations (Python 3.14-safe for instances)."""
+    clz = obj if isinstance(obj, type) else type(obj)
+    return clz.__annotations__.keys()
+
+
 class CoreEception(Exception):
     """Base exception functionality"""
 
@@ -477,7 +483,7 @@ class ModelAttributes(object):
             return self
 
         return ModelAttributes(
-            **dict((k, self._merge_of(k, other)) for k in self.__annotations__.keys())
+            **dict((k, self._merge_of(k, other)) for k in annotation_keys(self))
         )
 
     def diff(self, other: "ModelAttributes") -> "ModelAttributes":
@@ -485,17 +491,17 @@ class ModelAttributes(object):
         if not other:
             return self
         return ModelAttributes(
-            **dict((k, self._diff_of(k, other)) for k in self.__annotations__.keys())
+            **dict((k, self._diff_of(k, other)) for k in annotation_keys(self))
         )
 
     def is_empty(self) -> bool:
         """Returns True if all attributes are None."""
-        return all(getattr(self, k) is None for k in self.__annotations__.keys())
+        return all(getattr(self, k) is None for k in annotation_keys(self))
 
     def _as_non_defaults_dict(self) -> Dict[str, object]:
         return dict(
             (k, getattr(self, k))
-            for k in self.__annotations__.keys()
+            for k in annotation_keys(self)
             if getattr(self, k) is not None
         )
 
@@ -673,7 +679,7 @@ class NamedShapeBase(object):
     def _as_non_defaults_dict(self) -> Dict[str, object]:
         return dict(
             (k, getattr(self, k))
-            for k in self.__annotations__.keys()
+            for k in annotation_keys(self)
             if getattr(self, k) is not None
         )
 
@@ -1982,7 +1988,7 @@ def non_defaults_dict(dataclas_obj, include=None, exclude=()):
         )
     return dict(
         (k, getattr(dataclas_obj, k))
-        for k in dataclas_obj.__annotations__.keys()
+        for k in annotation_keys(dataclas_obj)
         if (k not in exclude)
         and (include is None or k in include)
         and getattr(dataclas_obj, k) is not None
